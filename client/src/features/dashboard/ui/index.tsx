@@ -2,8 +2,12 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { StatisticsTab } from './StatisticsTab';
-import { SessionsTab } from './SessionsTab';
+import {
+  StatisticsTab
+} from './StatisticsTab';
+import {
+  SessionsTab
+} from './SessionsTab';
 import { cn } from '@/shared/lib/utils';
 import {
   CandlestickChart,

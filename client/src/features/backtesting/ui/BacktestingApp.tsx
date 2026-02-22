@@ -50,7 +50,7 @@ const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#3b82f6', // blue-500
+      main: '#3b82f6',
     },
     background: {
       paper: '#0d1117',
