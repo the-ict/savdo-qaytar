@@ -5,13 +5,7 @@ import React, {
     useRef,
     useState
 } from 'react';
-import {
-    createChart,
-    ColorType,
-    CrosshairMode,
-    IChartApi,
-    ISeriesApi
-} from 'lightweight-charts';
+import { init, dispose, Chart } from 'klinecharts';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import {
@@ -19,46 +13,76 @@ import {
     Play,
     Pause,
     FastForward,
-    Settings,
     LayoutDashboard,
     Maximize2,
     Minimize2,
-    Crosshair
+    Crosshair,
+    PenTool,
+    Trash2,
+    MousePointer2,
+    MoveHorizontal,
+    TrendingUp as TrendLineIcon,
+    AlignEndHorizontal,
+    LucideIcon,
+    Settings
 } from 'lucide-react';
 import Link from 'next/link';
 
-// Generate realistic-looking mock OHLC data
-const generateData = (count = 500) => {
+// Generate realistic-looking mock OHLC data based on timeframe
+const generateData = (count = 500, timeframe = '5M') => {
     let basePrice = 1.0850;
     const data = [];
     const now = new Date();
+
+    // Determine milliseconds per period based on timeframe
+    let msPerPeriod = 5 * 60 * 1000; // default 5M
+    if (timeframe === '1M') msPerPeriod = 1 * 60 * 1000;
+    if (timeframe === '15M') msPerPeriod = 15 * 60 * 1000;
+    if (timeframe === '1H') msPerPeriod = 60 * 60 * 1000;
+    if (timeframe === '4H') msPerPeriod = 4 * 60 * 60 * 1000;
+    if (timeframe === '1D') msPerPeriod = 24 * 60 * 60 * 1000;
+
     // Start `count` periods ago
     for (let i = count; i >= 0; i--) {
-        const time = new Date(now.getTime() - i * 5 * 60 * 1000); // 5m timeframe
-        const vol = Math.random() * 0.0020;
+        const time = new Date(now.getTime() - i * msPerPeriod);
+        const vol = Math.random() * (msPerPeriod / 100000000); // Scale volatility by timeframe
         const open = basePrice;
         const high = open + Math.random() * vol;
         const low = open - Math.random() * vol;
         const close = Math.random() > 0.5 ? low + Math.random() * (high - low) : high - Math.random() * (high - low);
 
         data.push({
-            time: time.getTime() / 1000 as any,
+            timestamp: time.getTime(), // klinecharts uses timestamp in ms
             open: parseFloat(open.toFixed(5)),
             high: parseFloat(high.toFixed(5)),
             low: parseFloat(low.toFixed(5)),
-            close: parseFloat(close.toFixed(5))
+            close: parseFloat(close.toFixed(5)),
+            volume: Math.floor(Math.random() * 1000)
         });
         basePrice = close;
     }
     return data;
 };
 
+// Helper component for toolbar buttons
+const ToolbarButton = ({ icon: Icon, tooltip, onClick, active, isDanger }: { icon: LucideIcon, tooltip: string, onClick: () => void, active?: boolean, isDanger?: boolean }) => (
+    <Button
+        variant="ghost"
+        size="icon"
+        className={`h-8 w-8 rounded-lg ${active ? 'bg-white/10 text-white' : 'text-muted-foreground hover:bg-white/5'} ${isDanger ? 'hover:text-red-500' : ''}`}
+        onClick={onClick}
+        title={tooltip}
+    >
+        <Icon className="size-4" />
+    </Button>
+);
+
 export const BacktestingApp = ({ id }: { id: string }) => {
     const chartContainerRef = useRef<HTMLDivElement>(null);
-    const chartRef = useRef<IChartApi | null>(null);
-    const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
+    const chartRef = useRef<Chart | null>(null);
 
-    const [historicalData] = useState(() => generateData(1000));
+    const [timeframe, setTimeframe] = useState('5M');
+    const [historicalData, setHistoricalData] = useState(() => generateData(2000, '5M'));
     const [currentIndex, setCurrentIndex] = useState(200); // Start showing 200 candles
 
     // Playback state
@@ -109,66 +133,73 @@ export const BacktestingApp = ({ id }: { id: string }) => {
 
     const equity = balance + openPnL;
 
+    // Handle timeframe changes
+    const changeTimeframe = (newTf: string) => {
+        setTimeframe(newTf);
+        const newData = generateData(2000, newTf);
+        setHistoricalData(newData);
+        setCurrentIndex(200); // Reset chart view on tf change
+        setIsPlaying(false);
+        if (chartRef.current) {
+            chartRef.current.applyNewData(newData.slice(0, 200));
+        }
+    };
+
     useEffect(() => {
         if (!chartContainerRef.current) return;
 
-        const handleResize = () => {
-            if (chartRef.current && chartContainerRef.current) {
-                chartRef.current.applyOptions({ width: chartContainerRef.current.clientWidth });
-            }
-        };
-
-        const chart = createChart(chartContainerRef.current, {
-            layout: {
-                background: { type: ColorType.Solid, color: '#0d1117' },
-                textColor: '#8b949e',
-            },
-            grid: {
-                vertLines: { color: 'rgba(255, 255, 255, 0.05)' },
-                horzLines: { color: 'rgba(255, 255, 255, 0.05)' },
-            },
-            crosshair: {
-                mode: CrosshairMode.Normal,
-            },
-            rightPriceScale: {
-                borderColor: 'rgba(255, 255, 255, 0.1)',
-            },
-            timeScale: {
-                borderColor: 'rgba(255, 255, 255, 0.1)',
-                timeVisible: true,
-                secondsVisible: false,
-            },
-        });
-        chartRef.current = chart;
-
-        const candlestickSeries = chart.addCandlestickSeries({
-            upColor: '#10b981',
-            downColor: '#f43f5e',
-            borderVisible: false,
-            wickUpColor: '#10b981',
-            wickDownColor: '#f43f5e',
-        });
-        seriesRef.current = candlestickSeries;
-
-        candlestickSeries.setData(historicalData.slice(0, currentIndex));
-
-        chart.subscribeCrosshairMove((param) => {
-            if (chartContainerRef.current) {
-                if (param.point && param.seriesData.get(candlestickSeries)) {
-                    chartContainerRef.current.style.cursor = 'pointer';
-                } else {
-                    chartContainerRef.current.style.cursor = 'crosshair';
+        const chart = init(chartContainerRef.current, {
+            styles: {
+                grid: {
+                    horizontal: { color: 'rgba(255, 255, 255, 0.05)' },
+                    vertical: { color: 'rgba(255, 255, 255, 0.05)' }
+                },
+                candle: {
+                    bar: {
+                        upColor: '#10b981',
+                        downColor: '#f43f5e',
+                        noChangeColor: '#888888',
+                        upBorderColor: '#10b981',
+                        downBorderColor: '#f43f5e',
+                        noChangeBorderColor: '#888888',
+                        upWickColor: '#10b981',
+                        downWickColor: '#f43f5e',
+                        noChangeWickColor: '#888888'
+                    }
+                },
+                xAxis: {
+                    tickText: { color: '#8b949e' },
+                    axisLine: { color: 'rgba(255, 255, 255, 0.1)' }
+                },
+                yAxis: {
+                    tickText: { color: '#8b949e' },
+                    axisLine: { color: 'rgba(255, 255, 255, 0.1)' }
+                },
+                crosshair: {
+                    horizontal: { line: { color: 'rgba(255, 255, 255, 0.5)' } },
+                    vertical: { line: { color: 'rgba(255, 255, 255, 0.5)' } }
                 }
             }
         });
+
+        if (chart) {
+            chartRef.current = chart;
+            chart.applyNewData(historicalData.slice(0, currentIndex));
+        }
+
+        const handleResize = () => {
+            chart?.resize();
+        };
 
         window.addEventListener('resize', handleResize);
 
         return () => {
             window.removeEventListener('resize', handleResize);
-            chart.remove();
+            if (chartContainerRef.current) {
+                dispose(chartContainerRef.current);
+            }
         };
-    }, []);
+    }, []); // Removed generic re-renders to let klinecharts handle itself natively
 
     // Playback loop
     useEffect(() => {
@@ -182,9 +213,9 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                         setIsPlaying(false);
                         return prev;
                     }
-                    if (seriesRef.current) {
+                    if (chartRef.current) {
                         const newCandle = historicalData[nextIdx - 1];
-                        seriesRef.current.update(newCandle);
+                        chartRef.current.updateData(newCandle);
 
                         // Check pending orders
                         setPendingOrders(currentOrders => {
@@ -261,6 +292,18 @@ export const BacktestingApp = ({ id }: { id: string }) => {
         setPendingOrders([]);
     };
 
+    const createOverlay = (name: string) => {
+        if (chartRef.current) {
+            chartRef.current.createOverlay(name);
+        }
+    };
+
+    const clearOverlays = () => {
+        if (chartRef.current) {
+            chartRef.current.removeOverlay();
+        }
+    };
+
     return (
         <div ref={appContainerRef} className="h-screen w-full bg-[#0d1117] flex flex-col overflow-hidden text-white font-sans">
             {/* Top Toolbar */}
@@ -272,7 +315,18 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                     <div className="h-4 w-px bg-white/10" />
                     <div className="flex items-center gap-2">
                         <span className="font-black tracking-tight">EUR/USD</span>
-                        <span className="text-xs font-bold text-muted-foreground bg-white/5 px-2 py-0.5 rounded">5M</span>
+                        <select
+                            value={timeframe}
+                            onChange={(e) => changeTimeframe(e.target.value)}
+                            className="text-xs font-bold text-muted-foreground bg-white/5 px-2 py-1 rounded border-none outline-none appearance-none cursor-pointer hover:bg-white/10 transition-colors"
+                        >
+                            <option value="1M">1M</option>
+                            <option value="5M">5M</option>
+                            <option value="15M">15M</option>
+                            <option value="1H">1H</option>
+                            <option value="4H">4H</option>
+                            <option value="1D">1D</option>
+                        </select>
                     </div>
                     <div className="h-4 w-px bg-white/10 mx-2" />
                     <div className="flex text-xs font-mono text-muted-foreground gap-3">
@@ -325,6 +379,17 @@ export const BacktestingApp = ({ id }: { id: string }) => {
 
             {/* Main Area */}
             <div className="flex flex-1 overflow-hidden">
+                {/* Left Drawing Toolbar */}
+                <aside className="w-12 border-r border-white/5 bg-[#0d1117] flex flex-col items-center py-2 gap-2 shrink-0 z-10">
+                    <ToolbarButton icon={MousePointer2} tooltip="Cursor" onClick={() => { }} active />
+                    <div className="w-6 h-px bg-white/10 my-1" />
+                    <ToolbarButton icon={TrendLineIcon} tooltip="Trend Line" onClick={() => createOverlay('rayLine')} />
+                    <ToolbarButton icon={MoveHorizontal} tooltip="Horizontal Line" onClick={() => createOverlay('priceLine')} />
+                    <ToolbarButton icon={AlignEndHorizontal} tooltip="Fibonacci" onClick={() => createOverlay('fibonacciLine')} />
+                    <ToolbarButton icon={PenTool} tooltip="Segment" onClick={() => createOverlay('segment')} />
+                    <div className="w-6 h-px bg-white/10 my-1" />
+                    <ToolbarButton icon={Trash2} tooltip="Clear All" onClick={clearOverlays} isDanger />
+                </aside>
 
                 {/* Chart Container */}
                 <div className="flex-1 relative bg-[#090b0e] cursor-crosshair">
@@ -502,3 +567,5 @@ export const BacktestingApp = ({ id }: { id: string }) => {
         </div>
     );
 };
+
+
