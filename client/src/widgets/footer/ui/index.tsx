@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
+import { Link } from '@/shared/config/i18n/navigation';
 import {
   CandlestickChart,
   Github,
@@ -43,7 +43,7 @@ const Footer = () => {
             </Link>
             <p className="text-muted-foreground text-sm max-w-xs mb-8">
               Professional treyderlar uchun backtesting va strategiya tahlili
-              platformasi. O'z kelajagingizni biz bilan quring.
+              platformasi. O&apos;z kelajagingizni biz bilan quring.
             </p>
             <div className="flex gap-4">
               <Link
@@ -109,7 +109,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link href="#" className="hover:text-primary transition-colors">
-                  Qo'llanma
+                  Qo&apos;llanma
                 </Link>
               </li>
               <li>
@@ -126,9 +126,9 @@ const Footer = () => {
           </div>
 
           <div className="col-span-2 lg:col-span-2">
-            <h4 className="font-bold mb-6">Yangiliklarga a'zo bo'ling</h4>
+            <h4 className="font-bold mb-6">Yangiliklarga a&apos;zo bo&apos;ling</h4>
             <p className="text-sm text-muted-foreground mb-4">
-              Eng so'nggi yangiliklar va maqolalarni elektron pochtangizga
+              Eng so&apos;nggi yangiliklar va maqolalarni elektron pochtangizga
               oling.
             </p>
             <div className="flex gap-2">
@@ -139,7 +139,7 @@ const Footer = () => {
                 id="footer-email"
               />
               <button className="cursor-pointer premium-gradient text-white px-6 py-2 rounded-xl text-sm font-bold hover:shadow-lg transition-all">
-                A'zo bo'lish
+                A&apos;zo bo&apos;lish
               </button>
             </div>
           </div>
@@ -148,19 +148,29 @@ const Footer = () => {
         <div className="pt-10 border-t border-border/20 flex flex-col md:row items-center justify-between gap-6 text-xs text-muted-foreground">
           <div>© 2026 qaytasavdo. Barcha huquqlar himoyalangan.</div>
           <div className="flex gap-6">
-            <Link href="#" className="hover:text-foreground transition-colors">
+            <Link
+              href="/legal/privacy-policy"
+              className="hover:text-foreground transition-colors"
+            >
               Maxfiylik siyosati
             </Link>
-            <Link href="#" className="hover:text-foreground transition-colors">
+            <Link
+              href="/legal/terms-of-service"
+              className="hover:text-foreground transition-colors"
+            >
               Foydalanish shartlari
             </Link>
-            <Link href="#" className="hover:text-foreground transition-colors">
+            <Link
+              href="/legal/cookie-policy"
+              className="hover:text-foreground transition-colors"
+            >
               Kuki siyosati
             </Link>
           </div>
         </div>
       </div>
     </footer>
+
   );
 };
 
