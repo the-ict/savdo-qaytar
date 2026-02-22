@@ -1,7 +1,5 @@
-import React from 'react'
+import React from 'react';
 
 export default function pagel() {
-    return (
-        <div>pagel</div>
-    )
+  return <div>pagel</div>;
 }

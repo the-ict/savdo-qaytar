@@ -5,9 +5,18 @@ import React, {
     useRef,
     useState
 } from 'react';
-import { init, dispose, Chart } from 'klinecharts';
-import { Button } from '@/shared/ui/button';
-import { Input } from '@/shared/ui/input';
+import {
+    init,
+    dispose,
+    Chart,
+    CandleType
+} from 'klinecharts';
+import {
+    Button
+} from '@/shared/ui/button';
+import {
+    Input
+} from '@/shared/ui/input';
 import {
     ArrowLeft,
     Play,
@@ -24,80 +33,48 @@ import {
     TrendingUp as TrendLineIcon,
     AlignEndHorizontal,
     LucideIcon,
-    Settings
+    Settings,
 } from 'lucide-react';
 import Link from 'next/link';
-
-// Generate realistic-looking mock OHLC data based on timeframe
-const generateData = (count = 500, timeframe = '5M') => {
-    let basePrice = 1.0850;
-    const data = [];
-    const now = new Date();
-
-    // Determine milliseconds per period based on timeframe
-    let msPerPeriod = 5 * 60 * 1000; // default 5M
-    if (timeframe === '1M') msPerPeriod = 1 * 60 * 1000;
-    if (timeframe === '15M') msPerPeriod = 15 * 60 * 1000;
-    if (timeframe === '1H') msPerPeriod = 60 * 60 * 1000;
-    if (timeframe === '4H') msPerPeriod = 4 * 60 * 60 * 1000;
-    if (timeframe === '1D') msPerPeriod = 24 * 60 * 60 * 1000;
-
-    // Start `count` periods ago
-    for (let i = count; i >= 0; i--) {
-        const time = new Date(now.getTime() - i * msPerPeriod);
-        const vol = Math.random() * (msPerPeriod / 100000000); // Scale volatility by timeframe
-        const open = basePrice;
-        const high = open + Math.random() * vol;
-        const low = open - Math.random() * vol;
-        const close = Math.random() > 0.5 ? low + Math.random() * (high - low) : high - Math.random() * (high - low);
-
-        data.push({
-            timestamp: time.getTime(), // klinecharts uses timestamp in ms
-            open: parseFloat(open.toFixed(5)),
-            high: parseFloat(high.toFixed(5)),
-            low: parseFloat(low.toFixed(5)),
-            close: parseFloat(close.toFixed(5)),
-            volume: Math.floor(Math.random() * 1000)
-        });
-        basePrice = close;
-    }
-    return data;
-};
-
-// Helper component for toolbar buttons
-const ToolbarButton = ({ icon: Icon, tooltip, onClick, active, isDanger }: { icon: LucideIcon, tooltip: string, onClick: () => void, active?: boolean, isDanger?: boolean }) => (
-    <Button
-        variant="ghost"
-        size="icon"
-        className={`h-8 w-8 rounded-lg ${active ? 'bg-white/10 text-white' : 'text-muted-foreground hover:bg-white/5'} ${isDanger ? 'hover:text-red-500' : ''}`}
-        onClick={onClick}
-        title={tooltip}
-    >
-        <Icon className="size-4" />
-    </Button>
-);
+import {
+    BASIC_SEGMENT,
+    BASIC_FIBONACCI,
+    BASIC_PRICE,
+    BASIC_RAY,
+    generateData,
+} from '../lib/data';
+import ToolbarButton from './ToolbarButton';
 
 export const BacktestingApp = ({ id }: { id: string }) => {
+    const [isMounted, setIsMounted] = useState(false);
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
     const chartContainerRef = useRef<HTMLDivElement>(null);
     const chartRef = useRef<Chart | null>(null);
 
     const [timeframe, setTimeframe] = useState('5M');
-    const [historicalData, setHistoricalData] = useState(() => generateData(2000, '5M'));
-    const [currentIndex, setCurrentIndex] = useState(200); // Start showing 200 candles
+    const [historicalData, setHistoricalData] = useState(() =>
+        generateData(2000, '5M'),
+    );
+    const [currentIndex, setCurrentIndex] = useState(200);
 
     // Playback state
     const [isPlaying, setIsPlaying] = useState(false);
     const [speedMultiplier, setSpeedMultiplier] = useState(1);
 
     // Trading state
-    const [balance, setBalance] = useState(10000.00);
+    const [balance, setBalance] = useState(10000.0);
     const [positions, setPositions] = useState<any[]>([]);
     const [pendingOrders, setPendingOrders] = useState<any[]>([]);
 
     // Form state
-    const [lotSize, setLotSize] = useState("1.00");
-    const [orderType, setOrderType] = useState<'MARKET' | 'LIMIT' | 'STOP'>('MARKET');
-    const [targetPrice, setTargetPrice] = useState("");
+    const [lotSize, setLotSize] = useState('1.00');
+    const [orderType, setOrderType] = useState<'MARKET' | 'LIMIT' | 'STOP'>(
+        'MARKET',
+    );
+    const [targetPrice, setTargetPrice] = useState('');
 
     const currentCandle = historicalData[currentIndex - 1] || historicalData[0];
     const currentPrice = currentCandle.close;
@@ -106,10 +83,28 @@ export const BacktestingApp = ({ id }: { id: string }) => {
     const [isFullscreen, setIsFullscreen] = useState(false);
     const appContainerRef = useRef<HTMLDivElement>(null);
 
+    // Register basic overlays once properly
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            import('klinecharts').then(({ registerOverlay }) => {
+                try {
+                    registerOverlay(BASIC_SEGMENT);
+                    registerOverlay(BASIC_RAY);
+                    registerOverlay(BASIC_PRICE);
+                    registerOverlay(BASIC_FIBONACCI);
+                } catch (e) {
+                    // Ignore registration errors if already registered
+                }
+            });
+        }
+    }, []);
+
     const toggleFullscreen = () => {
         if (!document.fullscreenElement) {
-            appContainerRef.current?.requestFullscreen().catch(err => {
-                console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+            appContainerRef.current?.requestFullscreen().catch((err) => {
+                console.error(
+                    `Error attempting to enable full-screen mode: ${err.message} (${err.name})`,
+                );
             });
         } else {
             document.exitFullscreen();
@@ -121,24 +116,26 @@ export const BacktestingApp = ({ id }: { id: string }) => {
             setIsFullscreen(!!document.fullscreenElement);
         };
         document.addEventListener('fullscreenchange', handleFullscreenChange);
-        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+        return () =>
+            document.removeEventListener('fullscreenchange', handleFullscreenChange);
     }, []);
 
     // Calculate current PnL from open positions
     const openPnL = positions.reduce((total, pos) => {
-        const diff = pos.type === 'BUY' ? currentPrice - pos.entryPrice : pos.entryPrice - currentPrice;
-        // Approximation: 1 standard lot (100k) pip value = $10. Or roughly diff * 100000.
-        return total + (diff * 100000 * pos.lotSize);
+        const diff =
+            pos.type === 'BUY'
+                ? currentPrice - pos.entryPrice
+                : pos.entryPrice - currentPrice;
+        return total + diff * 100000 * pos.lotSize;
     }, 0);
 
     const equity = balance + openPnL;
 
-    // Handle timeframe changes
     const changeTimeframe = (newTf: string) => {
         setTimeframe(newTf);
         const newData = generateData(2000, newTf);
         setHistoricalData(newData);
-        setCurrentIndex(200); // Reset chart view on tf change
+        setCurrentIndex(200);
         setIsPlaying(false);
         if (chartRef.current) {
             chartRef.current.applyNewData(newData.slice(0, 200));
@@ -152,9 +149,10 @@ export const BacktestingApp = ({ id }: { id: string }) => {
             styles: {
                 grid: {
                     horizontal: { color: 'rgba(255, 255, 255, 0.05)' },
-                    vertical: { color: 'rgba(255, 255, 255, 0.05)' }
+                    vertical: { color: 'rgba(255, 255, 255, 0.05)' },
                 },
                 candle: {
+                    type: CandleType.CandleSolid,
                     bar: {
                         upColor: '#10b981',
                         downColor: '#f43f5e',
@@ -164,28 +162,29 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                         noChangeBorderColor: '#888888',
                         upWickColor: '#10b981',
                         downWickColor: '#f43f5e',
-                        noChangeWickColor: '#888888'
-                    }
+                        noChangeWickColor: '#888888',
+                    },
                 },
                 xAxis: {
                     tickText: { color: '#8b949e' },
-                    axisLine: { color: 'rgba(255, 255, 255, 0.1)' }
+                    axisLine: { color: 'rgba(255, 255, 255, 0.1)' },
                 },
                 yAxis: {
                     tickText: { color: '#8b949e' },
-                    axisLine: { color: 'rgba(255, 255, 255, 0.1)' }
+                    axisLine: { color: 'rgba(255, 255, 255, 0.1)' },
                 },
                 crosshair: {
                     horizontal: { line: { color: 'rgba(255, 255, 255, 0.5)' } },
-                    vertical: { line: { color: 'rgba(255, 255, 255, 0.5)' } }
-                }
-            }
+                    vertical: { line: { color: 'rgba(255, 255, 255, 0.5)' } },
+                },
+            },
         });
 
         if (chart) {
             chartRef.current = chart;
             chart.applyNewData(historicalData.slice(0, currentIndex));
-        }
+            chart.setPriceVolumePrecision(5, 0);
+        };
 
         const handleResize = () => {
             chart?.resize();
@@ -199,7 +198,7 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                 dispose(chartContainerRef.current);
             }
         };
-    }, []); // Removed generic re-renders to let klinecharts handle itself natively
+    }, []);
 
     // Playback loop
     useEffect(() => {
@@ -207,7 +206,7 @@ export const BacktestingApp = ({ id }: { id: string }) => {
         if (isPlaying && currentIndex < historicalData.length) {
             const delay = 1000 / speedMultiplier;
             intervalId = setInterval(() => {
-                setCurrentIndex(prev => {
+                setCurrentIndex((prev) => {
                     const nextIdx = prev + 1;
                     if (nextIdx > historicalData.length) {
                         setIsPlaying(false);
@@ -215,22 +214,38 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                     }
                     if (chartRef.current) {
                         const newCandle = historicalData[nextIdx - 1];
+
                         chartRef.current.updateData(newCandle);
 
-                        // Check pending orders
-                        setPendingOrders(currentOrders => {
+                        setPendingOrders((currentOrders) => {
                             const remainingOrders = [];
-                            const newPositions: { type: string, entryPrice: number, lotSize: number }[] = [];
+                            const newPositions: {
+                                type: string;
+                                entryPrice: number;
+                                lotSize: number;
+                            }[] = [];
 
                             for (const o of currentOrders) {
                                 let executed = false;
-                                if (o.type.includes('BUY LIMIT') && newCandle.low <= o.targetPrice) {
+                                if (
+                                    o.type.includes('BUY LIMIT') &&
+                                    newCandle.low <= o.targetPrice
+                                ) {
                                     executed = true;
-                                } else if (o.type.includes('SELL LIMIT') && newCandle.high >= o.targetPrice) {
+                                } else if (
+                                    o.type.includes('SELL LIMIT') &&
+                                    newCandle.high >= o.targetPrice
+                                ) {
                                     executed = true;
-                                } else if (o.type.includes('BUY STOP') && newCandle.high >= o.targetPrice) {
+                                } else if (
+                                    o.type.includes('BUY STOP') &&
+                                    newCandle.high >= o.targetPrice
+                                ) {
                                     executed = true;
-                                } else if (o.type.includes('SELL STOP') && newCandle.low <= o.targetPrice) {
+                                } else if (
+                                    o.type.includes('SELL STOP') &&
+                                    newCandle.low <= o.targetPrice
+                                ) {
                                     executed = true;
                                 }
 
@@ -238,7 +253,7 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                                     newPositions.push({
                                         type: o.type.includes('BUY') ? 'BUY' : 'SELL',
                                         entryPrice: o.targetPrice,
-                                        lotSize: o.lotSize
+                                        lotSize: o.lotSize,
                                     });
                                 } else {
                                     remainingOrders.push(o);
@@ -246,7 +261,7 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                             }
 
                             if (newPositions.length > 0) {
-                                setPositions(p => [...p, ...newPositions]);
+                                setPositions((p) => [...p, ...newPositions]);
                             }
 
                             return remainingOrders;
@@ -262,29 +277,41 @@ export const BacktestingApp = ({ id }: { id: string }) => {
     const handleBuy = () => {
         const size = parseFloat(lotSize) || 1;
         if (orderType === 'MARKET') {
-            setPositions([...positions, { type: 'BUY', entryPrice: currentPrice, lotSize: size }]);
+            setPositions([
+                ...positions,
+                { type: 'BUY', entryPrice: currentPrice, lotSize: size },
+            ]);
         } else {
             const target = parseFloat(targetPrice);
             if (!target) return;
-            setPendingOrders([...pendingOrders, { type: `BUY ${orderType}`, targetPrice: target, lotSize: size }]);
-            setTargetPrice(""); // clear after placement
+            setPendingOrders([
+                ...pendingOrders,
+                { type: `BUY ${orderType}`, targetPrice: target, lotSize: size },
+            ]);
+            setTargetPrice('');
         }
     };
 
     const handleSell = () => {
         const size = parseFloat(lotSize) || 1;
         if (orderType === 'MARKET') {
-            setPositions([...positions, { type: 'SELL', entryPrice: currentPrice, lotSize: size }]);
+            setPositions([
+                ...positions,
+                { type: 'SELL', entryPrice: currentPrice, lotSize: size },
+            ]);
         } else {
             const target = parseFloat(targetPrice);
             if (!target) return;
-            setPendingOrders([...pendingOrders, { type: `SELL ${orderType}`, targetPrice: target, lotSize: size }]);
-            setTargetPrice(""); // clear after placement
+            setPendingOrders([
+                ...pendingOrders,
+                { type: `SELL ${orderType}`, targetPrice: target, lotSize: size },
+            ]);
+            setTargetPrice('');
         }
     };
 
     const closeAllPositions = () => {
-        setBalance(prev => prev + openPnL);
+        setBalance((prev) => prev + openPnL);
         setPositions([]);
     };
 
@@ -304,12 +331,21 @@ export const BacktestingApp = ({ id }: { id: string }) => {
         }
     };
 
+    if (!isMounted) {
+        return <div className="h-screen w-full bg-[#0d1117]" />;
+    }
+
     return (
-        <div ref={appContainerRef} className="h-screen w-full bg-[#0d1117] flex flex-col overflow-hidden text-white font-sans">
-            {/* Top Toolbar */}
+        <div
+            ref={appContainerRef}
+            className="h-screen w-full bg-[#0d1117] flex flex-col overflow-hidden text-white font-sans"
+        >
             <header className="h-14 border-b border-white/5 flex items-center justify-between px-4 bg-[#0d1117] shrink-0">
                 <div className="flex items-center gap-4">
-                    <Link href={`/dashboard/sessions/${id}`} className="p-2 hover:bg-white/5 rounded-lg transition-colors">
+                    <Link
+                        href={`/dashboard/sessions/${id}`}
+                        className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+                    >
                         <ArrowLeft className="size-5 text-muted-foreground" />
                     </Link>
                     <div className="h-4 w-px bg-white/10" />
@@ -330,22 +366,59 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                     </div>
                     <div className="h-4 w-px bg-white/10 mx-2" />
                     <div className="flex text-xs font-mono text-muted-foreground gap-3">
-                        <span>O: <span className="text-white">{currentCandle.open.toFixed(5)}</span></span>
-                        <span>H: <span className="text-emerald-500">{currentCandle.high.toFixed(5)}</span></span>
-                        <span>L: <span className="text-rose-500">{currentCandle.low.toFixed(5)}</span></span>
-                        <span>C: <span className="text-white">{currentCandle.close.toFixed(5)}</span></span>
+                        <span>
+                            O:{' '}
+                            <span className="text-white">
+                                {currentCandle.open.toFixed(5)}
+                            </span>
+                        </span>
+                        <span>
+                            H:{' '}
+                            <span className="text-emerald-500">
+                                {currentCandle.high.toFixed(5)}
+                            </span>
+                        </span>
+                        <span>
+                            L:{' '}
+                            <span className="text-rose-500">
+                                {currentCandle.low.toFixed(5)}
+                            </span>
+                        </span>
+                        <span>
+                            C:{' '}
+                            <span className="text-white">
+                                {currentCandle.close.toFixed(5)}
+                            </span>
+                        </span>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" className="hover:bg-white/5 text-muted-foreground rounded-lg">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="hover:bg-white/5 text-muted-foreground rounded-lg"
+                    >
                         <Crosshair className="size-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="hover:bg-white/5 text-muted-foreground rounded-lg">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="hover:bg-white/5 text-muted-foreground rounded-lg"
+                    >
                         <LayoutDashboard className="size-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="hover:bg-white/5 text-muted-foreground rounded-lg" onClick={toggleFullscreen}>
-                        {isFullscreen ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="hover:bg-white/5 text-muted-foreground rounded-lg"
+                        onClick={toggleFullscreen}
+                    >
+                        {isFullscreen ? (
+                            <Minimize2 className="size-4" />
+                        ) : (
+                            <Maximize2 className="size-4" />
+                        )}
                     </Button>
                     <div className="h-4 w-px bg-white/10 mx-2" />
                     <div className="flex items-center bg-white/5 rounded-lg p-1">
@@ -361,7 +434,10 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                             variant="ghost"
                             size="icon"
                             className={`h-7 w-7 rounded ${isPlaying && speedMultiplier === 1 ? 'bg-primary text-white' : 'hover:bg-primary text-primary hover:text-white'} transition-colors`}
-                            onClick={() => { setIsPlaying(true); setSpeedMultiplier(1); }}
+                            onClick={() => {
+                                setIsPlaying(true);
+                                setSpeedMultiplier(1);
+                            }}
                         >
                             <Play className="size-3 fill-current" />
                         </Button>
@@ -369,7 +445,10 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                             variant="ghost"
                             size="icon"
                             className={`h-7 w-7 rounded ${isPlaying && speedMultiplier > 1 ? 'bg-primary text-white' : 'hover:bg-white/10 text-muted-foreground'}`}
-                            onClick={() => { setIsPlaying(true); setSpeedMultiplier(4); }}
+                            onClick={() => {
+                                setIsPlaying(true);
+                                setSpeedMultiplier(4);
+                            }}
                         >
                             <FastForward className="size-3 fill-current" />
                         </Button>
@@ -377,18 +456,42 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                 </div>
             </header>
 
-            {/* Main Area */}
             <div className="flex flex-1 overflow-hidden">
-                {/* Left Drawing Toolbar */}
                 <aside className="w-12 border-r border-white/5 bg-[#0d1117] flex flex-col items-center py-2 gap-2 shrink-0 z-10">
-                    <ToolbarButton icon={MousePointer2} tooltip="Cursor" onClick={() => { }} active />
+                    <ToolbarButton
+                        icon={MousePointer2}
+                        tooltip="Cursor"
+                        onClick={() => { }}
+                        active
+                    />
                     <div className="w-6 h-px bg-white/10 my-1" />
-                    <ToolbarButton icon={TrendLineIcon} tooltip="Trend Line" onClick={() => createOverlay('rayLine')} />
-                    <ToolbarButton icon={MoveHorizontal} tooltip="Horizontal Line" onClick={() => createOverlay('priceLine')} />
-                    <ToolbarButton icon={AlignEndHorizontal} tooltip="Fibonacci" onClick={() => createOverlay('fibonacciLine')} />
-                    <ToolbarButton icon={PenTool} tooltip="Segment" onClick={() => createOverlay('segment')} />
+                    <ToolbarButton
+                        icon={TrendLineIcon}
+                        tooltip="Trend Line"
+                        onClick={() => createOverlay('rayLine')}
+                    />
+                    <ToolbarButton
+                        icon={MoveHorizontal}
+                        tooltip="Horizontal Line"
+                        onClick={() => createOverlay('priceLine')}
+                    />
+                    <ToolbarButton
+                        icon={AlignEndHorizontal}
+                        tooltip="Fibonacci"
+                        onClick={() => createOverlay('fibonacciLine')}
+                    />
+                    <ToolbarButton
+                        icon={PenTool}
+                        tooltip="Segment"
+                        onClick={() => createOverlay('segment')}
+                    />
                     <div className="w-6 h-px bg-white/10 my-1" />
-                    <ToolbarButton icon={Trash2} tooltip="Clear All" onClick={clearOverlays} isDanger />
+                    <ToolbarButton
+                        icon={Trash2}
+                        tooltip="Clear All"
+                        onClick={clearOverlays}
+                        isDanger
+                    />
                 </aside>
 
                 {/* Chart Container */}
@@ -404,8 +507,6 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                     </div>
 
                     <div className="p-4 flex-1 overflow-y-auto space-y-6">
-
-                        {/* Order Type */}
                         <div className="bg-white/5 p-1 rounded-xl flex gap-1">
                             <button
                                 onClick={() => setOrderType('MARKET')}
@@ -459,17 +560,28 @@ export const BacktestingApp = ({ id }: { id: string }) => {
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="space-y-1.5">
-                                    <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Stop Loss</label>
-                                    <Input type="number" placeholder="Pips" className="bg-white/5 border-white/10 text-white h-10 rounded-xl" />
+                                    <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+                                        Stop Loss
+                                    </label>
+                                    <Input
+                                        type="number"
+                                        placeholder="Pips"
+                                        className="bg-white/5 border-white/10 text-white h-10 rounded-xl"
+                                    />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Take Profit</label>
-                                    <Input type="number" placeholder="Pips" className="bg-white/5 border-white/10 text-white h-10 rounded-xl" />
+                                    <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+                                        Take Profit
+                                    </label>
+                                    <Input
+                                        type="number"
+                                        placeholder="Pips"
+                                        className="bg-white/5 border-white/10 text-white h-10 rounded-xl"
+                                    />
                                 </div>
                             </div>
                         </div>
 
-                        {/* Buy/Sell Buttons */}
                         <div className="grid grid-cols-2 gap-3 pt-2">
                             <Button
                                 onClick={handleSell}
@@ -478,7 +590,11 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                                 <span className="text-[10px] uppercase tracking-widest font-black opacity-80 group-hover:opacity-100">
                                     Sell {orderType !== 'MARKET' ? orderType : 'By Market'}
                                 </span>
-                                <span className="font-mono font-bold text-lg">{orderType !== 'MARKET' ? (targetPrice || '0.00000') : currentPrice.toFixed(5)}</span>
+                                <span className="font-mono font-bold text-lg">
+                                    {orderType !== 'MARKET'
+                                        ? targetPrice || '0.00000'
+                                        : currentPrice.toFixed(5)}
+                                </span>
                             </Button>
                             <Button
                                 onClick={handleBuy}
@@ -487,7 +603,11 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                                 <span className="text-[10px] uppercase tracking-widest font-black opacity-80 group-hover:opacity-100">
                                     Buy {orderType !== 'MARKET' ? orderType : 'By Market'}
                                 </span>
-                                <span className="font-mono font-bold text-lg">{orderType !== 'MARKET' ? (targetPrice || '0.00000') : (currentPrice + 0.00002).toFixed(5)}</span>
+                                <span className="font-mono font-bold text-lg">
+                                    {orderType !== 'MARKET'
+                                        ? targetPrice || '0.00000'
+                                        : (currentPrice + 0.00002).toFixed(5)}
+                                </span>
                             </Button>
                         </div>
 
@@ -497,14 +617,32 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                             {positions.length > 0 && (
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">Open Positions ({positions.length})</span>
-                                        <Button variant="ghost" size="sm" onClick={closeAllPositions} className="h-6 text-[10px] text-rose-500 hover:text-rose-400 hover:bg-rose-500/10">Close All</Button>
+                                        <span className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">
+                                            Open Positions ({positions.length})
+                                        </span>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={closeAllPositions}
+                                            className="h-6 text-[10px] text-rose-500 hover:text-rose-400 hover:bg-rose-500/10"
+                                        >
+                                            Close All
+                                        </Button>
                                     </div>
                                     <div className="space-y-2 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
                                         {positions.map((pos, i) => (
-                                            <div key={i} className="bg-white/5 border border-white/5 p-2 rounded-lg flex justify-between items-center text-xs">
-                                                <span className={`font-bold ${pos.type === 'BUY' ? 'text-emerald-500' : 'text-rose-500'}`}>{pos.type} {pos.lotSize}</span>
-                                                <span className="font-mono text-muted-foreground">{pos.entryPrice.toFixed(5)}</span>
+                                            <div
+                                                key={i}
+                                                className="bg-white/5 border border-white/5 p-2 rounded-lg flex justify-between items-center text-xs"
+                                            >
+                                                <span
+                                                    className={`font-bold ${pos.type === 'BUY' ? 'text-emerald-500' : 'text-rose-500'}`}
+                                                >
+                                                    {pos.type} {pos.lotSize}
+                                                </span>
+                                                <span className="font-mono text-muted-foreground">
+                                                    {pos.entryPrice.toFixed(5)}
+                                                </span>
                                             </div>
                                         ))}
                                     </div>
@@ -515,14 +653,32 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                             {pendingOrders.length > 0 && (
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-[10px] uppercase tracking-widest text-amber-400 font-bold">Pending Orders ({pendingOrders.length})</span>
-                                        <Button variant="ghost" size="sm" onClick={cancelAllPending} className="h-6 text-[10px] text-muted-foreground hover:text-white hover:bg-white/10">Cancel All</Button>
+                                        <span className="text-[10px] uppercase tracking-widest text-amber-400 font-bold">
+                                            Pending Orders ({pendingOrders.length})
+                                        </span>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={cancelAllPending}
+                                            className="h-6 text-[10px] text-muted-foreground hover:text-white hover:bg-white/10"
+                                        >
+                                            Cancel All
+                                        </Button>
                                     </div>
                                     <div className="space-y-2 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
                                         {pendingOrders.map((pos, i) => (
-                                            <div key={i} className="bg-white/5 border border-white/5 p-2 rounded-lg flex justify-between items-center text-xs opacity-70">
-                                                <span className={`font-bold ${pos.type.includes('BUY') ? 'text-emerald-500' : 'text-rose-500'}`}>{pos.type} {pos.lotSize}</span>
-                                                <span className="font-mono text-muted-foreground">@ {pos.targetPrice.toFixed(5)}</span>
+                                            <div
+                                                key={i}
+                                                className="bg-white/5 border border-white/5 p-2 rounded-lg flex justify-between items-center text-xs opacity-70"
+                                            >
+                                                <span
+                                                    className={`font-bold ${pos.type.includes('BUY') ? 'text-emerald-500' : 'text-rose-500'}`}
+                                                >
+                                                    {pos.type} {pos.lotSize}
+                                                </span>
+                                                <span className="font-mono text-muted-foreground">
+                                                    @ {pos.targetPrice.toFixed(5)}
+                                                </span>
                                             </div>
                                         ))}
                                     </div>
@@ -533,23 +689,35 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                         {/* Session Balances */}
                         <div className="pt-6 border-t border-white/5 space-y-3">
                             <div className="flex justify-between items-center text-sm">
-                                <span className="text-muted-foreground font-medium text-xs">Balans</span>
-                                <span className="font-mono font-bold text-white">${balance.toFixed(2)}</span>
+                                <span className="text-muted-foreground font-medium text-xs">
+                                    Balans
+                                </span>
+                                <span className="font-mono font-bold text-white">
+                                    ${balance.toFixed(2)}
+                                </span>
                             </div>
                             <div className="flex justify-between items-center text-sm">
-                                <span className="text-muted-foreground font-medium text-xs">Equity</span>
-                                <span className={`font-mono font-bold ${openPnL > 0 ? 'text-emerald-500' : openPnL < 0 ? 'text-rose-500' : 'text-white'}`}>
+                                <span className="text-muted-foreground font-medium text-xs">
+                                    Equity
+                                </span>
+                                <span
+                                    className={`font-mono font-bold ${openPnL > 0 ? 'text-emerald-500' : openPnL < 0 ? 'text-rose-500' : 'text-white'}`}
+                                >
                                     ${equity.toFixed(2)}
                                 </span>
                             </div>
                             <div className="flex justify-between items-center text-sm">
-                                <span className="text-muted-foreground font-medium text-xs">Open PnL</span>
-                                <span className={`font-mono font-bold flex items-center gap-1 ${openPnL > 0 ? 'text-emerald-500' : openPnL < 0 ? 'text-rose-500' : 'text-white'}`}>
-                                    {openPnL > 0 ? '+' : ''}{openPnL.toFixed(2)}
+                                <span className="text-muted-foreground font-medium text-xs">
+                                    Open PnL
+                                </span>
+                                <span
+                                    className={`font-mono font-bold flex items-center gap-1 ${openPnL > 0 ? 'text-emerald-500' : openPnL < 0 ? 'text-rose-500' : 'text-white'}`}
+                                >
+                                    {openPnL > 0 ? '+' : ''}
+                                    {openPnL.toFixed(2)}
                                 </span>
                             </div>
                         </div>
-
                     </div>
                 </aside>
             </div>
@@ -557,15 +725,13 @@ export const BacktestingApp = ({ id }: { id: string }) => {
             {/* Bottom Status Bar */}
             <footer className="h-8 border-t border-white/5 bg-[#0d1117] flex items-center justify-between px-4 text-[10px] font-bold tracking-widest uppercase text-muted-foreground">
                 <div className="flex gap-4">
-                    <span className="flex items-center gap-1.5"><div className="size-1.5 rounded-full bg-emerald-500" /> Ulandis</span>
+                    <span className="flex items-center gap-1.5">
+                        <div className="size-1.5 rounded-full bg-emerald-500" /> Ulandis
+                    </span>
                     <span>Qaytasavdo Engine v1.0</span>
                 </div>
-                <div>
-                    Date: 22 Feb 2024, 09:30 UTC
-                </div>
+                <div>Date: 22 Feb 2024, 09:30 UTC</div>
             </footer>
         </div>
     );
 };
-
-

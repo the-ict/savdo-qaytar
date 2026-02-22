@@ -14,7 +14,9 @@ export function ThemeToggle() {
   }, []);
 
   if (!mounted) {
-    return <div className="size-9 rounded-xl border border-border/50 bg-background/50" />;
+    return (
+      <div className="size-9 rounded-xl border border-border/50 bg-background/50" />
+    );
   }
 
   return (

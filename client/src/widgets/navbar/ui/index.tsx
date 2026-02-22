@@ -1,17 +1,10 @@
-"use client"
+'use client';
 
 import React from 'react';
 import Link from 'next/link';
-import {
-  Button
-} from '@/shared/ui/button';
-import {
-  ThemeToggle
-} from '@/shared/ui/theme-toggle';
-import {
-  cn
-} from '@/shared/lib/utils';
-
+import { Button } from '@/shared/ui/button';
+import { ThemeToggle } from '@/shared/ui/theme-toggle';
+import { cn } from '@/shared/lib/utils';
 
 import { CandlestickChart } from 'lucide-react';
 import { usePathname } from 'next/navigation';
@@ -21,7 +14,6 @@ const Navbar = () => {
 
   const pathname = usePathname();
 
-
   React.useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -30,7 +22,10 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+  const handleSmoothScroll = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    id: string,
+  ) => {
     e.preventDefault();
     const element = document.getElementById(id);
     if (element) {
@@ -42,26 +37,28 @@ const Navbar = () => {
 
       window.scrollTo({
         top: offsetPosition,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
   };
 
   if (
-    pathname.includes("login") ||
-    pathname.includes("register") ||
-    pathname.includes("reset-password") ||
-    pathname.includes("dashboard") ||
-    pathname.includes("backtesting")
+    pathname.includes('login') ||
+    pathname.includes('register') ||
+    pathname.includes('reset-password') ||
+    pathname.includes('dashboard') ||
+    pathname.includes('backtesting')
   ) {
     return null;
-  };
+  }
 
   return (
     <nav
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b',
-        isScrolled ? 'glass py-3 border-border/50' : 'bg-transparent py-5 border-transparent'
+        isScrolled
+          ? 'glass py-3 border-border/50'
+          : 'bg-transparent py-5 border-transparent',
       )}
     >
       <div className="custom-container flex items-center justify-between">
