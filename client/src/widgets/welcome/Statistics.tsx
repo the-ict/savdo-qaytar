@@ -77,7 +77,7 @@ export const Statistics = () => {
           <div className="relative aspect-square max-w-[400px] mx-auto lg:ml-auto">
             <div className="absolute inset-0 premium-gradient blur-[100px] opacity-20 animate-pulse" />
             <Image
-              src="/Users/davlatbek/.gemini/antigravity/brain/68a8ea2a-e7ab-478d-8826-fd847f4a31a3/trader_success_illustration_1771707235744.png"
+              src="/images/trader_success.png"
               alt="Trader Success"
               width={400}
               height={400}
