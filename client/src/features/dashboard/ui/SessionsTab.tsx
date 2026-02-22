@@ -7,10 +7,20 @@ import {
     Play,
     Calendar,
     Clock,
-    ArrowUpRight,
-    MoreVertical,
-    ChevronRight
+    ChevronRight,
+    Wallet,
+    ChevronDown
 } from 'lucide-react';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/shared/ui/dialog";
+import { Input } from "@/shared/ui/input";
 
 const sessions = [
     {
@@ -47,10 +57,68 @@ export const SessionsTab = () => {
         <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex items-center justify-between mb-8">
                 <h2 className="text-2xl font-black text-white uppercase tracking-tight">Sizning Sessiyalaringiz</h2>
-                <Button className="premium-gradient text-white border-0 px-6 rounded-xl font-bold shadow-lg shadow-primary/20">
-                    Yangi Sessiya
-                    <Play className="ml-2 size-4 fill-current" />
-                </Button>
+
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button className="premium-gradient text-white border-0 px-6 cursor-pointer rounded-xl font-bold shadow-lg shadow-primary/20">
+                            Yangi Sessiya
+                            <Play className="ml-2 size-4 fill-current" />
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="glass-dark border-white/10 text-white sm:max-w-[500px]">
+                        <DialogHeader>
+                            <DialogTitle className="text-2xl font-black uppercase tracking-tight">Yangi Sessiya Ochish</DialogTitle>
+                            <DialogDescription className="text-muted-foreground">
+                                Backtesting uchun yangi savdo sessiyasini sozlang.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-6 py-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label htmlFor="pair" className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Valyuta Juftligi</label>
+                                    <div className="relative w-full">
+                                        <select className="bg-white/5 w-full appearance-none border border-white/10 text-white h-12 rounded-xl focus-visible:ring-primary pl-4 pr-10">
+                                            <option value="">EUR USD</option>
+                                            <option value="">GBP USD</option>
+                                            <option value="">XAU USD</option>
+                                        </select>
+
+                                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label htmlFor="balance" className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Boshlang'ich Balans</label>
+                                    <div className="relative">
+                                        <Input id="balance" type="number" placeholder="10000" className="bg-white/5 border-white/10 text-white h-12 rounded-xl focus-visible:ring-primary pl-10" />
+                                        <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label htmlFor="start-date" className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Boshlanish Sanasi</label>
+                                    <Input id="start-date" type="date" className="bg-white/5 border-white/10 text-white h-12 rounded-xl focus-visible:ring-primary [color-scheme:dark]" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label htmlFor="end-date" className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Tugash Sanasi</label>
+                                    <Input id="end-date" type="date" className="bg-white/5 border-white/10 text-white h-12 rounded-xl focus-visible:ring-primary [color-scheme:dark]" />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label htmlFor="strategy" className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Strategiya (Majburiy emas)</label>
+                                <Input id="strategy" placeholder="Sizning strategiyangiz nomi" className="bg-white/5 border-white/10 text-white h-12 rounded-xl focus-visible:ring-primary" />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button className="premium-gradient text-white border-0 w-full h-12 rounded-xl font-bold shadow-lg hover:shadow-primary/25 transition-all text-base cursor-pointer">
+                                Sessiyani Boshlash
+                                <Play className="ml-2 size-5 fill-current" />
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
 
             <div className="grid gap-4">
