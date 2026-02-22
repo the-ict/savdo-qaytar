@@ -1,7 +1,11 @@
 'use client';
 
-import React from 'react';
-import { Link } from '@/shared/config/i18n/navigation';
+import React, {
+  useState
+} from 'react';
+import {
+  Link
+} from '@/shared/config/i18n/navigation';
 import {
   CandlestickChart,
   Github,
@@ -9,9 +13,12 @@ import {
   Instagram,
   Send,
 } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import {
+  usePathname
+} from 'next/navigation';
 
 const Footer = () => {
+  const [email, setEmail] = useState<string>("");
   const pathname = usePathname();
 
   if (
@@ -23,6 +30,12 @@ const Footer = () => {
   ) {
     return null;
   }
+
+  const handleFollow = () => {
+    alert("Email yozib olindi bizni tanlaganingiz uchun rahmat !");
+    setEmail("");
+  }
+
   return (
     <footer className="bg-card pt-20 pb-10 border-t border-border/50">
       <div className="custom-container">
@@ -138,11 +151,13 @@ const Footer = () => {
             <div className="flex gap-2">
               <input
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email manzilingiz"
                 className="bg-background border border-border/50 rounded-xl px-4 py-2 text-sm flex-1 outline-none focus:border-primary/50 transition-colors"
                 id="footer-email"
               />
-              <button className="cursor-pointer premium-gradient text-white px-6 py-2 rounded-xl text-sm font-bold hover:shadow-lg transition-all">
+              <button onClick={handleFollow} className="cursor-pointer premium-gradient text-white px-6 py-2 rounded-xl text-sm font-bold hover:shadow-lg transition-all">
                 A&apos;zo bo&apos;lish
               </button>
             </div>
