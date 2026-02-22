@@ -1,22 +1,9 @@
 'use client';
 
-import React, {
-    useEffect,
-    useRef,
-    useState
-} from 'react';
-import {
-    init,
-    dispose,
-    Chart,
-    CandleType
-} from 'klinecharts';
-import {
-    Button
-} from '@/shared/ui/button';
-import {
-    Input
-} from '@/shared/ui/input';
+import React, { useEffect, useRef, useState } from 'react';
+import { init, dispose, Chart, CandleType } from 'klinecharts';
+import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
 import {
     ArrowLeft,
     Play,
@@ -143,7 +130,7 @@ export const BacktestingApp = ({ id }: { id: string }) => {
     };
 
     useEffect(() => {
-        if (!chartContainerRef.current) return;
+        if (!isMounted || !chartContainerRef.current) return;
 
         const chart = init(chartContainerRef.current, {
             styles: {
@@ -184,7 +171,7 @@ export const BacktestingApp = ({ id }: { id: string }) => {
             chartRef.current = chart;
             chart.applyNewData(historicalData.slice(0, currentIndex));
             chart.setPriceVolumePrecision(5, 0);
-        };
+        }
 
         const handleResize = () => {
             chart?.resize();
@@ -198,7 +185,7 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                 dispose(chartContainerRef.current);
             }
         };
-    }, []);
+    }, [isMounted]);
 
     // Playback loop
     useEffect(() => {
@@ -494,12 +481,10 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                     />
                 </aside>
 
-                {/* Chart Container */}
                 <div className="flex-1 relative bg-[#090b0e] cursor-crosshair">
                     <div ref={chartContainerRef} className="absolute inset-0" />
                 </div>
 
-                {/* Trading Sidebar */}
                 <aside className="w-[320px] border-l border-white/5 bg-[#0d1117] flex flex-col shrink-0">
                     <div className="p-4 border-b border-white/5 font-bold uppercase tracking-widest text-xs flex justify-between items-center text-muted-foreground">
                         Yangi Buyurtma
@@ -528,7 +513,6 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                             </button>
                         </div>
 
-                        {/* Order Form */}
                         <div className="space-y-4">
                             <div className="space-y-1.5">
                                 <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold flex justify-between">
@@ -611,9 +595,7 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                             </Button>
                         </div>
 
-                        {/* Position Tracking Section */}
                         <div className="space-y-4">
-                            {/* Open Positions Info */}
                             {positions.length > 0 && (
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between">
@@ -649,7 +631,6 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                                 </div>
                             )}
 
-                            {/* Pending Orders Info */}
                             {pendingOrders.length > 0 && (
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between">
@@ -686,7 +667,6 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                             )}
                         </div>
 
-                        {/* Session Balances */}
                         <div className="pt-6 border-t border-white/5 space-y-3">
                             <div className="flex justify-between items-center text-sm">
                                 <span className="text-muted-foreground font-medium text-xs">
@@ -722,7 +702,6 @@ export const BacktestingApp = ({ id }: { id: string }) => {
                 </aside>
             </div>
 
-            {/* Bottom Status Bar */}
             <footer className="h-8 border-t border-white/5 bg-[#0d1117] flex items-center justify-between px-4 text-[10px] font-bold tracking-widest uppercase text-muted-foreground">
                 <div className="flex gap-4">
                     <span className="flex items-center gap-1.5">
