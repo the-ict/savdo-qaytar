@@ -16,7 +16,7 @@ import {
 const Footer = () => {
   const pathname = usePathname();
 
-  if (pathname.includes("login") || pathname.includes("register") || pathname.includes("reset-password")) {
+  if (pathname.includes("login") || pathname.includes("register") || pathname.includes("reset-password") || pathname.includes("dashboard")) {
     return null;
   };
   return (
