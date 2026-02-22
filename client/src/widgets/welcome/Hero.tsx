@@ -52,7 +52,6 @@ export const Hero = () => {
         <div className="mt-20 relative max-w-5xl mx-auto animate-in fade-in zoom-in duration-1000 delay-500">
           <div className="absolute -inset-1 premium-gradient opacity-20 blur-2xl rounded-[2rem]" />
           <div className="relative glass-dark rounded-[2rem] p-2 aspect-video overflow-hidden shadow-2xl border-white/10">
-            {/* Visual representation of the app */}
             <div className="w-full h-full bg-[#0d1117] rounded-xl overflow-hidden relative">
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
               <div className="p-4 border-b border-white/5 flex items-center justify-between">
