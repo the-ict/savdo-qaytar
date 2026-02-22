@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Card } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/shared/ui/tabs';
 import {
   ArrowLeft,
   Play,
@@ -15,6 +16,8 @@ import {
   Target,
   Activity,
   BarChart3,
+  History,
+  LayoutDashboard,
 } from 'lucide-react';
 
 interface SessionDetailsProps {
@@ -34,6 +37,75 @@ const getSessionData = (id: string) => ({
   profitFactor: '2.4',
   maxDrawdown: '4.2%',
 });
+
+const MOCK_TRADES = [
+  {
+    id: '1',
+    pair: 'EUR/USD',
+    type: 'BUY',
+    entryTime: '22 Feb, 09:30',
+    exitTime: '22 Feb, 10:45',
+    entryPrice: 1.0854,
+    exitPrice: 1.0872,
+    pnl: 180.0,
+    pips: 18,
+  },
+  {
+    id: '2',
+    pair: 'EUR/USD',
+    type: 'SELL',
+    entryTime: '22 Feb, 11:15',
+    exitTime: '22 Feb, 11:50',
+    entryPrice: 1.0865,
+    exitPrice: 1.085,
+    pnl: 150.0,
+    pips: 15,
+  },
+  {
+    id: '3',
+    pair: 'GBP/USD',
+    type: 'BUY',
+    entryTime: '22 Feb, 13:00',
+    exitTime: '22 Feb, 13:20',
+    entryPrice: 1.264,
+    exitPrice: 1.263,
+    pnl: -100.0,
+    pips: -10,
+  },
+  {
+    id: '4',
+    pair: 'EUR/USD',
+    type: 'SELL',
+    entryTime: '22 Feb, 14:30',
+    exitTime: '22 Feb, 15:45',
+    entryPrice: 1.088,
+    exitPrice: 1.0855,
+    pnl: 250.0,
+    pips: 25,
+  },
+  {
+    id: '5',
+    pair: 'USD/JPY',
+    type: 'BUY',
+    entryTime: '22 Feb, 16:10',
+    exitTime: '22 Feb, 16:30',
+    entryPrice: 150.2,
+    exitPrice: 150.15,
+    pnl: -50.0,
+    pips: -5,
+  },
+  {
+    id: '6',
+    pair: 'EUR/USD',
+    type: 'BUY',
+    entryTime: '22 Feb, 17:00',
+    exitTime: '22 Feb, 18:00',
+    entryPrice: 1.085,
+    exitPrice: 1.089,
+    pnl: 400.0,
+    pips: 40,
+  },
+];
 
 export const SessionDetails = ({ id }: SessionDetailsProps) => {
   const session = getSessionData(id);
@@ -89,81 +161,178 @@ export const SessionDetails = ({ id }: SessionDetailsProps) => {
         </div>
       </div>
 
-      {/* KPI Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card className="p-6 glass-dark border-white/5">
-          <div className="flex items-center gap-4">
-            <div className="size-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-              <TrendingUp className="size-6" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                Sof Foyda
-              </p>
-              <p className="text-2xl font-black text-white mt-1">
-                {session.pnl}
-              </p>
-            </div>
+      <Tabs defaultValue="overview" className="w-full">
+        <TabsContent
+          value="overview"
+          className="space-y-8 animate-in mt-0 fade-in zoom-in-95 duration-300"
+        >
+          {/* KPI Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="p-6 glass-dark border-white/5">
+              <div className="flex items-center gap-4">
+                <div className="size-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                  <TrendingUp className="size-6" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                    Sof Foyda
+                  </p>
+                  <p className="text-2xl font-black text-white mt-1">
+                    {session.pnl}
+                  </p>
+                </div>
+              </div>
+            </Card>
+            <Card className="p-6 glass-dark border-white/5">
+              <div className="flex items-center gap-4">
+                <div className="size-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                  <Target className="size-6" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                    Win Rate
+                  </p>
+                  <p className="text-2xl font-black text-white mt-1">
+                    {session.winRate}
+                  </p>
+                </div>
+              </div>
+            </Card>
+            <Card className="p-6 glass-dark border-white/5">
+              <div className="flex items-center gap-4">
+                <div className="size-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500">
+                  <Activity className="size-6" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                    Profit Factor
+                  </p>
+                  <p className="text-2xl font-black text-white mt-1">
+                    {session.profitFactor}
+                  </p>
+                </div>
+              </div>
+            </Card>
+            <Card className="p-6 glass-dark border-white/5">
+              <div className="flex items-center gap-4">
+                <div className="size-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500">
+                  <TrendingDown className="size-6" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                    Max Drawdown
+                  </p>
+                  <p className="text-2xl font-black text-white mt-1">
+                    {session.maxDrawdown}
+                  </p>
+                </div>
+              </div>
+            </Card>
           </div>
-        </Card>
-        <Card className="p-6 glass-dark border-white/5">
-          <div className="flex items-center gap-4">
-            <div className="size-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-              <Target className="size-6" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                Win Rate
-              </p>
-              <p className="text-2xl font-black text-white mt-1">
-                {session.winRate}
-              </p>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-6 glass-dark border-white/5">
-          <div className="flex items-center gap-4">
-            <div className="size-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500">
-              <Activity className="size-6" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                Profit Factor
-              </p>
-              <p className="text-2xl font-black text-white mt-1">
-                {session.profitFactor}
-              </p>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-6 glass-dark border-white/5">
-          <div className="flex items-center gap-4">
-            <div className="size-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500">
-              <TrendingDown className="size-6" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                Max Drawdown
-              </p>
-              <p className="text-2xl font-black text-white mt-1">
-                {session.maxDrawdown}
-              </p>
-            </div>
-          </div>
-        </Card>
-      </div>
 
-      {/* Chart placeholder for session */}
-      <Card className="p-8 glass-dark border-white/5 h-[400px] flex items-center justify-center relative overflow-hidden mb-8">
-        <div className="absolute inset-0 bg-primary/5" />
-        <div className="text-center relative z-10">
-          <BarChart3 className="size-16 text-muted/20 mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-white mb-2">Equity Curve</h3>
-          <p className="text-muted-foreground">
-            Grafik ma'lumotlari tez orada paydo bo'ladi...
-          </p>
+          {/* Chart placeholder for session */}
+          <Card className="p-8 glass-dark border-white/5 h-[400px] flex items-center justify-center relative overflow-hidden">
+            <div className="absolute inset-0 bg-primary/5" />
+            <div className="text-center relative z-10">
+              <BarChart3 className="size-16 text-muted-foreground/20 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">Equity Curve</h3>
+              <p className="text-muted-foreground">
+                Grafik ma&apos;lumotlari tez orada paydo bo&apos;ladi...
+              </p>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <div
+          className="animate-in fade-in zoom-in-95 duration-300 mt-10"
+        >
+          <Card className="glass-dark border-white/5 overflow-hidden">
+            <div className="w-full overflow-x-auto">
+              <table className="w-full text-left text-sm whitespace-nowrap">
+                <thead className="bg-[#1a202c]/50 text-muted-foreground text-xs uppercase tracking-widest">
+                  <tr>
+                    <th className="px-6 py-4 font-bold border-b border-white/5">
+                      Savdo
+                    </th>
+                    <th className="px-6 py-4 font-bold border-b border-white/5">
+                      Vaqt (Entry - Exit)
+                    </th>
+                    <th className="px-6 py-4 font-bold border-b border-white/5">
+                      Narx (Entry - Exit)
+                    </th>
+                    <th className="px-6 py-4 font-bold border-b border-white/5 text-right">
+                      Foyda / Zarar
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {MOCK_TRADES.map((trade) => (
+                    <tr
+                      key={trade.id}
+                      className="hover:bg-white/[0.02] transition-colors group cursor-pointer"
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`size-8 rounded flex items-center justify-center font-bold text-[10px] ${trade.type === 'BUY'
+                              ? 'bg-emerald-500/10 text-emerald-500'
+                              : 'bg-rose-500/10 text-rose-500'
+                              }`}
+                          >
+                            {trade.type}
+                          </div>
+                          <span className="font-bold text-white">
+                            {trade.pair}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-muted-foreground">
+                        <div className="flex flex-col gap-0.5">
+                          <span>{trade.entryTime}</span>
+                          <span className="text-xs opacity-60">
+                            {trade.exitTime}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 font-mono">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-white">
+                            {trade.entryPrice.toFixed(4)}
+                          </span>
+                          <span className="text-muted-foreground text-xs">
+                            {trade.exitPrice.toFixed(4)}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex flex-col gap-0.5 items-end">
+                          <span
+                            className={`font-mono font-bold ${trade.pnl >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}
+                          >
+                            {trade.pnl >= 0 ? '+' : ''}${trade.pnl.toFixed(2)}
+                          </span>
+                          <span
+                            className={`text-xs ${trade.pips >= 0 ? 'text-emerald-500/70' : 'text-rose-500/70'}`}
+                          >
+                            {trade.pips >= 0 ? '+' : ''}
+                            {trade.pips} pips
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {MOCK_TRADES.length === 0 && (
+              <div className="p-12 text-center text-muted-foreground">
+                <History className="size-12 opacity-20 mx-auto mb-4" />
+                <p>Hozircha savdo tarixi mavjud emas.</p>
+              </div>
+            )}
+          </Card>
         </div>
-      </Card>
+      </Tabs>
 
       <div className="hero-glow top-0 left-0 size-[800px] opacity-[0.03] pointer-events-none" />
     </div>
