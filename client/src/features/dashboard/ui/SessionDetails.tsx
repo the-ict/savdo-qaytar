@@ -4,7 +4,18 @@ import React from 'react';
 import Link from 'next/link';
 import { Card } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/shared/ui/tabs';
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent
+} from '@/shared/ui/tabs';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/shared/ui/dialog';
 import {
   ArrowLeft,
   Play,
@@ -17,7 +28,6 @@ import {
   Activity,
   BarChart3,
   History,
-  LayoutDashboard,
 } from 'lucide-react';
 
 interface SessionDetailsProps {
@@ -109,6 +119,9 @@ const MOCK_TRADES = [
 
 export const SessionDetails = ({ id }: SessionDetailsProps) => {
   const session = getSessionData(id);
+  const [selectedTrade, setSelectedTrade] = React.useState<
+    (typeof MOCK_TRADES)[0] | null
+  >(null);
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-white pt-24 pb-20 px-8 container mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -235,7 +248,9 @@ export const SessionDetails = ({ id }: SessionDetailsProps) => {
             <div className="absolute inset-0 bg-primary/5" />
             <div className="text-center relative z-10">
               <BarChart3 className="size-16 text-muted-foreground/20 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">Equity Curve</h3>
+              <h3 className="text-xl font-bold text-white mb-2">
+                Equity Curve
+              </h3>
               <p className="text-muted-foreground">
                 Grafik ma&apos;lumotlari tez orada paydo bo&apos;ladi...
               </p>
@@ -243,9 +258,7 @@ export const SessionDetails = ({ id }: SessionDetailsProps) => {
           </Card>
         </TabsContent>
 
-        <div
-          className="animate-in fade-in zoom-in-95 duration-300 mt-10"
-        >
+        <div className="animate-in fade-in zoom-in-95 duration-300 mt-10">
           <Card className="glass-dark border-white/5 overflow-hidden">
             <div className="w-full overflow-x-auto">
               <table className="w-full text-left text-sm whitespace-nowrap">
@@ -269,7 +282,8 @@ export const SessionDetails = ({ id }: SessionDetailsProps) => {
                   {MOCK_TRADES.map((trade) => (
                     <tr
                       key={trade.id}
-                      className="hover:bg-white/[0.02] transition-colors group cursor-pointer"
+                      onClick={() => setSelectedTrade(trade)}
+                      className="hover:bg-white/[0.05] transition-colors group cursor-pointer"
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
@@ -335,6 +349,96 @@ export const SessionDetails = ({ id }: SessionDetailsProps) => {
       </Tabs>
 
       <div className="hero-glow top-0 left-0 size-[800px] opacity-[0.03] pointer-events-none" />
+
+      {/* Trade Details Modal */}
+      <Dialog
+        open={!!selectedTrade}
+        onOpenChange={(open) => !open && setSelectedTrade(null)}
+      >
+        <DialogContent className="bg-[#0f141b] border-white/10 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <span
+                className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest ${selectedTrade?.type === 'BUY'
+                  ? 'bg-emerald-500/10 text-emerald-500'
+                  : 'bg-rose-500/10 text-rose-500'
+                  }`}
+              >
+                {selectedTrade?.type}
+              </span>
+              <span>{selectedTrade?.pair} - Savdo Tafsiloti</span>
+            </DialogTitle>
+          </DialogHeader>
+          {selectedTrade && (
+            <div className="mt-4 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-1">
+                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
+                    Entry
+                  </p>
+                  <p className="font-mono text-lg font-bold">
+                    {selectedTrade.entryPrice.toFixed(4)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {selectedTrade.entryTime}
+                  </p>
+                </div>
+                <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-1">
+                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
+                    Exit
+                  </p>
+                  <p className="font-mono text-lg font-bold">
+                    {selectedTrade.exitPrice.toFixed(4)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {selectedTrade.exitTime}
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
+                    Natija
+                  </p>
+                  <p
+                    className={`font-mono text-2xl font-black ${selectedTrade.pnl >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}
+                  >
+                    {selectedTrade.pnl >= 0 ? '+' : ''}$
+                    {selectedTrade.pnl.toFixed(2)}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
+                    Pips
+                  </p>
+                  <p
+                    className={`font-mono font-bold ${selectedTrade.pips >= 0 ? 'text-emerald-500/70' : 'text-rose-500/70'}`}
+                  >
+                    {selectedTrade.pips >= 0 ? '+' : ''}
+                    {selectedTrade.pips}
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-4 flex gap-3">
+                <Button
+                  className="flex-1 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10"
+                  onClick={() => setSelectedTrade(null)}
+                >
+                  Yopish
+                </Button>
+                <Link href={`/backtesting/${session.id}`} className="flex-1">
+                  <Button className="w-full rounded-xl premium-gradient text-white font-bold border-0">
+                    Grafikda ko&apos;rish{' '}
+                    <Play className="size-4 ml-2 fill-current" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
