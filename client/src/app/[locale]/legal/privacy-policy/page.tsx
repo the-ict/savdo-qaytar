@@ -1,6 +1,5 @@
 import React from 'react';
-import { Link } from '@/shared/config/i18n/navigation';
-import { ArrowLeft, ShieldCheck, Lock, Eye, FileText, Activity } from 'lucide-react';
+import { ShieldCheck, Lock, Eye, FileText, Activity } from 'lucide-react';
 import { Locale } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
 
@@ -14,14 +13,6 @@ export default async function PrivacyPolicyPage({ params }: Props) {
     return (
         <div className="min-h-screen bg-background text-foreground pt-32 pb-20 px-4 md:px-8">
             <div className="max-w-4xl mx-auto">
-                <Link
-                    href="/"
-                    className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8 group"
-                >
-                    <ArrowLeft className="size-4 group-hover:-translate-x-1 transition-transform" />
-                    <span>Bosh sahifaga qaytish</span>
-                </Link>
-
                 <div className="flex items-center gap-4 mb-12">
                     <div className="size-16 rounded-2xl premium-gradient flex items-center justify-center text-white shadow-xl">
                         <ShieldCheck className="size-8" />

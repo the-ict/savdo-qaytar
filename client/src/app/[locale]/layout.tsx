@@ -38,29 +38,25 @@ export default async function RootLayout({ children, params }: Props) {
   setRequestLocale(locale);
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body className={`${golosText.variable} antialiased`}>
-        <NextIntlClientProvider locale={locale}>
-          <ThemeProvider
-            attribute={'class'}
-            defaultTheme="light"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <QueryProvider>
-              <Navbar />
-              {children}
-              <Footer />
-            </QueryProvider>
-          </ThemeProvider>
-        </NextIntlClientProvider>
-      </body>
+    <NextIntlClientProvider locale={locale}>
+      <ThemeProvider
+        attribute={'class'}
+        defaultTheme="light"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <QueryProvider>
+          <Navbar />
+          {children}
+          <Footer />
+        </QueryProvider>
+      </ThemeProvider>
       <Script
         src="https://buttons.github.io/buttons.js"
         strategy="lazyOnload"
         async
         defer
       />
-    </html>
+    </NextIntlClientProvider>
   );
 }
