@@ -47,25 +47,29 @@ const Footer = () => {
             </p>
             <div className="flex gap-4">
               <Link
-                href="#"
+                href="https://twitter.com"
+                target="_blank"
                 className="glass size-10 rounded-xl flex items-center justify-center hover:text-primary transition-colors"
               >
                 <Twitter className="size-5" />
               </Link>
               <Link
-                href="#"
+                href="https://instagram.com"
+                target="_blank"
                 className="glass size-10 rounded-xl flex items-center justify-center hover:text-primary transition-colors"
               >
                 <Instagram className="size-5" />
               </Link>
               <Link
-                href="#"
+                href="https://t.me/usmanov_dev"
+                target="_blank"
                 className="glass size-10 rounded-xl flex items-center justify-center hover:text-primary transition-colors"
               >
                 <Send className="size-5" />
               </Link>
               <Link
-                href="#"
+                href="https://github.com"
+                target="_blank"
                 className="glass size-10 rounded-xl flex items-center justify-center hover:text-primary transition-colors"
               >
                 <Github className="size-5" />
@@ -77,23 +81,23 @@ const Footer = () => {
             <h4 className="font-bold mb-6">Platforma</h4>
             <ul className="space-y-4 text-sm text-muted-foreground">
               <li>
-                <Link href="#" className="hover:text-primary transition-colors">
+                <Link href="/#features" className="hover:text-primary transition-colors">
                   Xususiyatlar
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-primary transition-colors">
+                <Link href="/#pricing" className="hover:text-primary transition-colors">
                   Narxlar
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-primary transition-colors">
-                  Akademiya
+                <Link href="/#stats" className="hover:text-primary transition-colors">
+                  Statistika
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-primary transition-colors">
-                  Hamkorlar
+                <Link href="/#reviews" className="hover:text-primary transition-colors">
+                  Treyderlar fikri
                 </Link>
               </li>
             </ul>
@@ -103,22 +107,22 @@ const Footer = () => {
             <h4 className="font-bold mb-6">Yordam</h4>
             <ul className="space-y-4 text-sm text-muted-foreground">
               <li>
-                <Link href="#" className="hover:text-primary transition-colors">
+                <Link href="/support/faq" className="hover:text-primary transition-colors">
                   FAQ
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-primary transition-colors">
+                <Link href="/support/guide" className="hover:text-primary transition-colors">
                   Qo&apos;llanma
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-primary transition-colors">
+                <Link href="/support/contact" className="hover:text-primary transition-colors">
                   Kontakt
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-primary transition-colors">
+                <Link href="/support/status" className="hover:text-primary transition-colors">
                   Status
                 </Link>
               </li>
