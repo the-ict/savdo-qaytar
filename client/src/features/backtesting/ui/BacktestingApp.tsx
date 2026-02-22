@@ -1,9 +1,17 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { init, dispose, Chart, CandleType } from 'klinecharts';
+import React, {
+  useEffect,
+  useRef,
+  useState
+} from 'react';
+import {
+  init,
+  dispose,
+  Chart,
+  CandleType
+} from 'klinecharts';
 import { Button } from '@/shared/ui/button';
-import { Input } from '@/shared/ui/input';
 import {
   ArrowLeft,
   Play,
@@ -19,8 +27,8 @@ import {
   MoveHorizontal,
   TrendingUp as TrendLineIcon,
   AlignEndHorizontal,
-  LucideIcon,
-  Settings,
+  ChevronUp,
+  Calendar,
 } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -31,6 +39,7 @@ import {
   generateData,
 } from '../lib/data';
 import ToolbarButton from './ToolbarButton';
+import BacktestingCalendar from './BacktestingCalendar';
 
 export const BacktestingApp = ({ id }: { id: string }) => {
   const [isMounted, setIsMounted] = useState(false);
@@ -41,11 +50,12 @@ export const BacktestingApp = ({ id }: { id: string }) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<Chart | null>(null);
 
-  const [timeframe, setTimeframe] = useState('5M');
+  const [timeframe, setTimeframe] = useState<string>('5M');
   const [historicalData, setHistoricalData] = useState(() =>
     generateData(2000, '5M'),
   );
-  const [currentIndex, setCurrentIndex] = useState(200);
+  const [currentIndex, setCurrentIndex] = useState<number>(200);
+  const [isCalendarOpen, setIsCalendarOpen] = useState<boolean>(false);
 
   // Playback state
   const [isPlaying, setIsPlaying] = useState(false);
@@ -448,7 +458,7 @@ export const BacktestingApp = ({ id }: { id: string }) => {
           <ToolbarButton
             icon={MousePointer2}
             tooltip="Cursor"
-            onClick={() => {}}
+            onClick={() => { }}
             active
           />
           <div className="w-6 h-px bg-white/10 my-1" />
@@ -484,232 +494,22 @@ export const BacktestingApp = ({ id }: { id: string }) => {
         <div className="flex-1 relative bg-[#090b0e] cursor-crosshair">
           <div ref={chartContainerRef} className="absolute inset-0" />
         </div>
-
-        <aside className="w-[320px] border-l border-white/5 bg-[#0d1117] flex flex-col shrink-0">
-          <div className="p-4 border-b border-white/5 font-bold uppercase tracking-widest text-xs flex justify-between items-center text-muted-foreground">
-            Yangi Buyurtma
-            <Settings className="size-4" />
-          </div>
-
-          <div className="p-4 flex-1 overflow-y-auto space-y-6">
-            <div className="bg-white/5 p-1 rounded-xl flex gap-1">
-              <button
-                onClick={() => setOrderType('MARKET')}
-                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-colors ${orderType === 'MARKET' ? 'bg-white/10 text-white' : 'text-muted-foreground hover:text-white'}`}
-              >
-                Market
-              </button>
-              <button
-                onClick={() => setOrderType('LIMIT')}
-                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-colors ${orderType === 'LIMIT' ? 'bg-white/10 text-white' : 'text-muted-foreground hover:text-white'}`}
-              >
-                Limit
-              </button>
-              <button
-                onClick={() => setOrderType('STOP')}
-                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-colors ${orderType === 'STOP' ? 'bg-white/10 text-white' : 'text-muted-foreground hover:text-white'}`}
-              >
-                Stop
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold flex justify-between">
-                  <span>Hajmi (Lot)</span>
-                  <span>Loverage: 1:100</span>
-                </label>
-                <Input
-                  type="number"
-                  value={lotSize}
-                  onChange={(e) => setLotSize(e.target.value)}
-                  className="bg-white/5 border-white/10 text-white text-lg h-12 rounded-xl text-center font-mono"
-                />
-              </div>
-
-              {orderType !== 'MARKET' && (
-                <div className="space-y-1.5">
-                  <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold flex justify-between">
-                    <span>Target Price</span>
-                  </label>
-                  <Input
-                    type="number"
-                    value={targetPrice}
-                    onChange={(e) => setTargetPrice(e.target.value)}
-                    placeholder={currentPrice.toFixed(5)}
-                    className="bg-white/5 border-white/10 text-emerald-400 text-lg h-12 rounded-xl text-center font-mono focus-visible:ring-emerald-500"
-                  />
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
-                    Stop Loss
-                  </label>
-                  <Input
-                    type="number"
-                    placeholder="Pips"
-                    className="bg-white/5 border-white/10 text-white h-10 rounded-xl"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
-                    Take Profit
-                  </label>
-                  <Input
-                    type="number"
-                    placeholder="Pips"
-                    className="bg-white/5 border-white/10 text-white h-10 rounded-xl"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 pt-2">
-              <Button
-                onClick={handleSell}
-                className="h-14 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 flex flex-col gap-0.5 group"
-              >
-                <span className="text-[10px] uppercase tracking-widest font-black opacity-80 group-hover:opacity-100">
-                  Sell {orderType !== 'MARKET' ? orderType : 'By Market'}
-                </span>
-                <span className="font-mono font-bold text-lg">
-                  {orderType !== 'MARKET'
-                    ? targetPrice || '0.00000'
-                    : currentPrice.toFixed(5)}
-                </span>
-              </Button>
-              <Button
-                onClick={handleBuy}
-                className="h-14 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border border-emerald-500/20 flex flex-col gap-0.5 group"
-              >
-                <span className="text-[10px] uppercase tracking-widest font-black opacity-80 group-hover:opacity-100">
-                  Buy {orderType !== 'MARKET' ? orderType : 'By Market'}
-                </span>
-                <span className="font-mono font-bold text-lg">
-                  {orderType !== 'MARKET'
-                    ? targetPrice || '0.00000'
-                    : (currentPrice + 0.00002).toFixed(5)}
-                </span>
-              </Button>
-            </div>
-
-            <div className="space-y-4">
-              {positions.length > 0 && (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">
-                      Open Positions ({positions.length})
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={closeAllPositions}
-                      className="h-6 text-[10px] text-rose-500 hover:text-rose-400 hover:bg-rose-500/10"
-                    >
-                      Close All
-                    </Button>
-                  </div>
-                  <div className="space-y-2 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
-                    {positions.map((pos, i) => (
-                      <div
-                        key={i}
-                        className="bg-white/5 border border-white/5 p-2 rounded-lg flex justify-between items-center text-xs"
-                      >
-                        <span
-                          className={`font-bold ${pos.type === 'BUY' ? 'text-emerald-500' : 'text-rose-500'}`}
-                        >
-                          {pos.type} {pos.lotSize}
-                        </span>
-                        <span className="font-mono text-muted-foreground">
-                          {pos.entryPrice.toFixed(5)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {pendingOrders.length > 0 && (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase tracking-widest text-amber-400 font-bold">
-                      Pending Orders ({pendingOrders.length})
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={cancelAllPending}
-                      className="h-6 text-[10px] text-muted-foreground hover:text-white hover:bg-white/10"
-                    >
-                      Cancel All
-                    </Button>
-                  </div>
-                  <div className="space-y-2 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
-                    {pendingOrders.map((pos, i) => (
-                      <div
-                        key={i}
-                        className="bg-white/5 border border-white/5 p-2 rounded-lg flex justify-between items-center text-xs opacity-70"
-                      >
-                        <span
-                          className={`font-bold ${pos.type.includes('BUY') ? 'text-emerald-500' : 'text-rose-500'}`}
-                        >
-                          {pos.type} {pos.lotSize}
-                        </span>
-                        <span className="font-mono text-muted-foreground">
-                          @ {pos.targetPrice.toFixed(5)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="pt-6 border-t border-white/5 space-y-3">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground font-medium text-xs">
-                  Balans
-                </span>
-                <span className="font-mono font-bold text-white">
-                  ${balance.toFixed(2)}
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground font-medium text-xs">
-                  Equity
-                </span>
-                <span
-                  className={`font-mono font-bold ${openPnL > 0 ? 'text-emerald-500' : openPnL < 0 ? 'text-rose-500' : 'text-white'}`}
-                >
-                  ${equity.toFixed(2)}
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground font-medium text-xs">
-                  Open PnL
-                </span>
-                <span
-                  className={`font-mono font-bold flex items-center gap-1 ${openPnL > 0 ? 'text-emerald-500' : openPnL < 0 ? 'text-rose-500' : 'text-white'}`}
-                >
-                  {openPnL > 0 ? '+' : ''}
-                  {openPnL.toFixed(2)}
-                </span>
-              </div>
-            </div>
-          </div>
-        </aside>
       </div>
 
-      <footer className="h-8 border-t border-white/5 bg-[#0d1117] flex items-center justify-between px-4 text-[10px] font-bold tracking-widest uppercase text-muted-foreground">
-        <div className="flex gap-4">
-          <span className="flex items-center gap-1.5">
-            <div className="size-1.5 rounded-full bg-emerald-500" /> Ulandis
-          </span>
-          <span>Qaytasavdo Engine v1.0</span>
+      <footer className="relative px-12 h-8 border-t border-white/5 bg-[#0d1117] flex items-center justify-between text-[10px] font-bold tracking-widest uppercase text-muted-foreground">
+        <div onClick={() => setIsCalendarOpen(!isCalendarOpen)} className="flex items-center gap-2 cursor-pointer">
+          <p>Date: 22 Feb 2024, 09:30 UTC</p>
+          <Calendar className="size-4" />
         </div>
-        <div>Date: 22 Feb 2024, 09:30 UTC</div>
+
+        {
+          isCalendarOpen && (
+            <BacktestingCalendar />
+          )
+        }
+        <div>
+          <ChevronUp className="size-4" />
+        </div>
       </footer>
     </div>
   );

@@ -116,6 +116,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground antialiased selection:bg-primary/20;
   }
@@ -141,7 +142,7 @@
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-500;
   }
-  
+
   .hero-glow {
     @apply absolute pointer-events-none;
     background: radial-gradient(circle at center, var(--primary) 0%, transparent 70%);
@@ -151,8 +152,13 @@
 }
 
 @keyframes slow-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .animate-slow-spin {
