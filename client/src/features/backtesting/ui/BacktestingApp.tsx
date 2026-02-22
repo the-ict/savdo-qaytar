@@ -28,9 +28,15 @@ import {
   TrendingUp as TrendLineIcon,
   AlignEndHorizontal,
   ChevronUp,
-  Calendar,
 } from 'lucide-react';
 import Link from 'next/link';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import {
+  createTheme,
+  ThemeProvider
+} from '@mui/material/styles';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import {
   BASIC_SEGMENT,
   BASIC_FIBONACCI,
@@ -39,7 +45,61 @@ import {
   generateData,
 } from '../lib/data';
 import ToolbarButton from './ToolbarButton';
-import BacktestingCalendar from './BacktestingCalendar';
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+    primary: {
+      main: '#3b82f6', // blue-500
+    },
+    background: {
+      paper: '#0d1117',
+      default: '#090b0e',
+    },
+    text: {
+      primary: '#ffffff',
+      secondary: '#94a3b8',
+    },
+  },
+  components: {
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            fontSize: '10px',
+            height: '24px',
+            backgroundColor: 'transparent',
+            '& fieldset': {
+              borderColor: 'rgba(255, 255, 255, 0.1)',
+              borderRadius: '8px',
+            },
+            '&:hover fieldset': {
+              borderColor: 'rgba(255, 255, 255, 0.2)',
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: '#3b82f6',
+            },
+          },
+          '& .MuiInputBase-input': {
+            padding: '4px 8px',
+            color: '#94a3b8',
+            fontWeight: 'bold',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+          },
+          '& .MuiInputAdornment-root .MuiIconButton-root': {
+            color: '#94a3b8',
+            padding: '2px',
+            '& svg': {
+              width: '14px',
+              height: '14px',
+            },
+          },
+        },
+      },
+    },
+  },
+});
 
 export const BacktestingApp = ({ id }: { id: string }) => {
   const [isMounted, setIsMounted] = useState(false);
@@ -497,16 +557,49 @@ export const BacktestingApp = ({ id }: { id: string }) => {
       </div>
 
       <footer className="relative px-12 h-8 border-t border-white/5 bg-[#0d1117] flex items-center justify-between text-[10px] font-bold tracking-widest uppercase text-muted-foreground">
-        <div onClick={() => setIsCalendarOpen(!isCalendarOpen)} className="flex items-center gap-2 cursor-pointer">
-          <p>Date: 22 Feb 2024, 09:30 UTC</p>
-          <Calendar className="size-4" />
-        </div>
-
-        {
-          isCalendarOpen && (
-            <BacktestingCalendar />
-          )
-        }
+        <ThemeProvider theme={darkTheme}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <div className="flex items-center gap-4">
+              <span className="text-[10px] text-muted-foreground font-bold whitespace-nowrap opacity-80">
+                VAQTGA O&apos;TISH:
+              </span>
+              <div className="bg-white/5 rounded-md px-2 flex items-center">
+                <DatePicker
+                  slotProps={{
+                    textField: {
+                      variant: 'standard',
+                      fullWidth: false,
+                      InputProps: {
+                        disableUnderline: true,
+                        sx: {
+                          fontSize: '10px',
+                          color: '#fff',
+                          fontWeight: 'bold',
+                          width: '100px',
+                          '& .MuiInputBase-input': {
+                            padding: '4px 0',
+                            textAlign: 'center',
+                          },
+                          '& .MuiInputAdornment-root': {
+                            marginLeft: '2px',
+                          },
+                          '& .MuiIconButton-root': {
+                            padding: '2px',
+                            color: 'rgba(255,255,255,0.5)',
+                            '& svg': {
+                              width: '14px',
+                              height: '14px',
+                            },
+                          },
+                        },
+                      },
+                    },
+                  }}
+                />
+              </div>
+            </div>
+          </LocalizationProvider>
+        </ThemeProvider>
         <div>
           <ChevronUp className="size-4" />
         </div>
