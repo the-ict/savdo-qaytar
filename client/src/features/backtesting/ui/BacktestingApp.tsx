@@ -102,12 +102,12 @@ const darkTheme = createTheme({
 });
 
 export const BacktestingApp = ({ id }: { id: string }) => {
-  const [isMounted, setIsMounted] = useState(false);
+  const [isMounted, setIsMounted] = useState<boolean>(false);
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const chartContainerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<Chart | null>(null);
 
   const [timeframe, setTimeframe] = useState<string>('5M');
