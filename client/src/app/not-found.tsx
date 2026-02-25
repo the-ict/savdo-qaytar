@@ -1,10 +1,8 @@
 'use client';
 
 import React from 'react';
-import { FileQuestion, ArrowLeft } from 'lucide-react';
+import { FileQuestion } from 'lucide-react';
 
-// Global 404 for when the locale isn't even matched
-// This file MUST include its own html/body tags as it renders at the root
 export default function GlobalNotFound() {
     return (
         <html lang="uz">
