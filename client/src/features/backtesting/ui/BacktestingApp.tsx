@@ -115,7 +115,6 @@ export const BacktestingApp = ({ id }: { id: string }) => {
     generateData(2000, '5M'),
   );
   const [currentIndex, setCurrentIndex] = useState<number>(200);
-  const [isCalendarOpen, setIsCalendarOpen] = useState<boolean>(false);
 
   // Playback state
   const [isPlaying, setIsPlaying] = useState(false);
@@ -185,8 +184,6 @@ export const BacktestingApp = ({ id }: { id: string }) => {
         : pos.entryPrice - currentPrice;
     return total + diff * 100000 * pos.lotSize;
   }, 0);
-
-  const equity = balance + openPnL;
 
   const changeTimeframe = (newTf: string) => {
     setTimeframe(newTf);

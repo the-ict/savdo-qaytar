@@ -124,7 +124,7 @@ export const SessionDetails = ({ id }: SessionDetailsProps) => {
   >(null);
 
   return (
-    <div className="min-h-screen bg-[#0d1117] text-white pt-24 pb-20 px-8 container mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="min-h-screen text-white pt-24 pb-20 px-8 container mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
