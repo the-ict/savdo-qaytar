@@ -5,10 +5,11 @@ import {
     Play,
     Pause,
     Square,
-    FastForward,
     Settings2
 } from 'lucide-react';
-import { ToolbarButton } from './ToolbarButton';
+import {
+    ToolbarButton
+} from './ToolbarButton';
 
 interface BacktestingHeaderProps {
     onPrev: () => void;
@@ -19,7 +20,7 @@ interface BacktestingHeaderProps {
     isPlaying: boolean;
     speed: number;
     onSpeedChange: (speed: number) => void;
-}
+};
 
 export const BacktestingHeader: React.FC<BacktestingHeaderProps> = ({
     onPrev,
