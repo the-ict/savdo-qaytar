@@ -92,6 +92,7 @@ export default function BacktestingApp() {
               onClick={() => handleToolClick(tool.id)}
               active={activeTool === tool.id}
               title={tool.name}
+              className='cursor-pointer'
             >
               {tool.icon}
             </ToolbarButton>

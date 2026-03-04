@@ -35,35 +35,31 @@ export const BacktestingHeader: React.FC<BacktestingHeaderProps> = ({
     return (
         <div className="flex items-center justify-between px-4 py-2 bg-[#131722] border-b border-gray-800 text-white">
             <div className="flex items-center gap-1">
-                <h1 className="text-sm font-semibold mr-4 text-gray-400 uppercase tracking-wider">Backtesting</h1>
+                <h1 className="text-sm font-semibold mr-4 text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors">ORTGA</h1>
 
-                <div className="h-6 w-[1px] bg-gray-800 mx-2" />
+                <div className="h-6 w-px bg-gray-800 mx-2" />
 
-                <ToolbarButton onClick={onPrev} title="Previous Candle (Left Arrow)">
+                <ToolbarButton onClick={onPrev} title="Previous Candle (Left Arrow)" className='cursor-pointer'>
                     <ChevronLeft className="w-4 h-4" />
                 </ToolbarButton>
 
-                <ToolbarButton onClick={onNext} title="Next Candle (Right Arrow)">
+                <ToolbarButton onClick={onNext} title="Next Candle (Right Arrow)" className='cursor-pointer'>
                     <ChevronRight className="w-4 h-4" />
                 </ToolbarButton>
 
-                <div className="h-6 w-[1px] bg-gray-800 mx-2" />
+                <div className="h-6 w-px bg-gray-800 mx-2" />
 
                 {isPlaying ? (
-                    <ToolbarButton onClick={onPause} active title="Pause">
+                    <ToolbarButton onClick={onPause} active title="Pause" className='cursor-pointer'>
                         <Pause className="w-4 h-4 fill-current" />
                     </ToolbarButton>
                 ) : (
-                    <ToolbarButton onClick={onPlay} title="Play (Auto Skip)">
+                    <ToolbarButton onClick={onPlay} title="Play (Auto Skip)" className='cursor-pointer'>
                         <Play className="w-4 h-4 fill-current" />
                     </ToolbarButton>
                 )}
 
-                <ToolbarButton onClick={onStop} title="Stop and Reset">
-                    <Square className="w-4 h-4 fill-current" />
-                </ToolbarButton>
-
-                <div className="h-6 w-[1px] bg-gray-800 mx-2" />
+                <div className="h-6 w-px bg-gray-800 mx-2" />
 
                 <div className="flex items-center gap-2 px-2 py-1 bg-white/5 rounded-md">
                     <span className="text-xs text-gray-500">Speed:</span>
