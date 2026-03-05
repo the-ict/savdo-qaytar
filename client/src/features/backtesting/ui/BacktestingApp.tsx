@@ -84,7 +84,7 @@ export default function BacktestingApp() {
         onSpeedChange={setSpeed}
       />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden gap-2 py-2">
         <div className="w-12 border-right border-gray-800 flex flex-col items-center py-4 gap-4 bg-[#131722]">
           {DRAWING_TOOLS.map((tool) => (
             <ToolbarButton
@@ -106,6 +106,10 @@ export default function BacktestingApp() {
               <Maximize2 className="w-4 h-4" />
             </ToolbarButton>
           </div>
+        </div>
+
+        <div>
+          this is where chart will shown up
         </div>
       </div>
     </div>
