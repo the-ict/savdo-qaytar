@@ -18,7 +18,7 @@ interface BacktestingHeaderProps {
     onSpeedChange: (speed: number) => void;
 };
 
-export const BacktestingHeader = ({ handleChangeTimeFrame }: { handleChangeTimeFrame: (chart: any, newData: any) => void }) => {
+export const BacktestingHeader = ({ handleChangeTimeFrame, chart }: { handleChangeTimeFrame: (chart: any, newData: any) => void, chart: any }) => {
     return (
         <div className="flex items-center justify-between px-4 py-2 bg-[#131722] border-b border-gray-800 text-white">
             <div className="flex items-center gap-1">
@@ -53,7 +53,13 @@ export const BacktestingHeader = ({ handleChangeTimeFrame }: { handleChangeTimeF
                     <select
                         value={100}
                         onChange={(e) => {
-                            handleChangeTimeFrame()
+                            handleChangeTimeFrame(chart, [
+                                { timestamp: 1518278400000, open: 8312.4, high: 8450.6, low: 7900.2, close: 8125.7, volume: 198321 },
+                                { timestamp: 1518364800000, open: 8126.1, high: 8604.9, low: 8050.4, close: 8540.3, volume: 176554 },
+                                { timestamp: 1518451200000, open: 8542.8, high: 8801.2, low: 8205.5, close: 8688.9, volume: 132440 },
+                                { timestamp: 1518537600000, open: 8689.1, high: 9105.7, low: 8600.3, close: 9022.4, volume: 215903 },
+                                { timestamp: 1518624000000, open: 9025.6, high: 9400.8, low: 8950.2, close: 9333.7, volume: 248771 }
+                            ]);
                         }}
                         className="bg-transparent text-xs outline-none cursor-pointer hover:text-blue-400 transition-colors"
                     >

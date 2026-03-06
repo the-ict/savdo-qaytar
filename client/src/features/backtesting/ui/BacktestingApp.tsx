@@ -1,6 +1,5 @@
 'use client';
 
-import BacktestingChart from './BacktestingChart';
 import {
   BacktestingHeader
 } from './BacktestingHeader';
@@ -18,6 +17,7 @@ import {
 
 import {
   useEffect,
+  useState,
 } from 'react';
 import {
   init,
@@ -36,12 +36,15 @@ const DRAWING_TOOLS = [
 ];
 
 export default function BacktestingApp() {
+  const [chartData, setChartData] = useState<any>(null);
   const handleChangeTimeFrame = (chart: any, newData: { timestamp: number, open: number, low: number, high: number, close: number, volume: number }[]) => {
-    chart.applyNewData([])
+    chart.applyNewData(newData);
+    console.log('newData: ', newData);
   };
 
   useEffect(() => {
     const chart = init('chart');
+    setChartData(chart);
 
     chart?.applyNewData([
       { timestamp: 1517846400000, open: 7424.6, high: 7511.3, low: 6032.3, close: 7310.1, volume: 224461 },
@@ -66,18 +69,9 @@ export default function BacktestingApp() {
           noChangeWickColor: '#888888'
         },
       },
-      xAxis: {
-        show: false,
-      },
-      yAxis: {
-        show: false,
-      },
       grid: {
         show: false,
       },
-      crosshair: {
-        show: false,
-      }
     });
 
     return () => {
@@ -87,7 +81,7 @@ export default function BacktestingApp() {
 
   return (
     <div className="flex flex-col h-screen bg-[#131722] overflow-hidden">
-      <BacktestingHeader handleChangeTimeFrame={handleChangeTimeFrame} />
+      <BacktestingHeader handleChangeTimeFrame={handleChangeTimeFrame} chart={chartData} />
 
       <div className="flex flex-1 overflow-hidden gap-2 py-2">
         <div className="w-12 border-right border-gray-800 flex flex-col items-center py-4 gap-4 bg-[#131722]">
