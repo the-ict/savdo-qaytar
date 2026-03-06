@@ -47,21 +47,18 @@ export const BacktestingHeader = ({ handleChangeTimeFrame, chart }: { handleChan
                     </button>
                 )}
 
-                <div className="h-6 w-px bg-gray-800 mx-2" onClick={() => {
-                    console.log("changing state");
-                    handleChangeTimeFrame(chart, [
-                        { timestamp: 1518278400000, open: 8312.4, high: 8450.6, low: 7900.2, close: 8125.7, volume: 198321 },
-                        { timestamp: 1518364800000, open: 8126.1, high: 8604.9, low: 8050.4, close: 8540.3, volume: 176554 },
-                        { timestamp: 1518451200000, open: 8542.8, high: 8801.2, low: 8205.5, close: 8688.9, volume: 132440 },
-                        { timestamp: 1518537600000, open: 8689.1, high: 9105.7, low: 8600.3, close: 9022.4, volume: 215903 },
-                        { timestamp: 1518624000000, open: 9025.6, high: 9400.8, low: 8950.2, close: 9333.7, volume: 248771 }
-                    ]);
-                }} />
+                <div className="h-6 w-px bg-gray-800 mx-2" />
 
                 <div className="flex items-center gap-2 px-2 py-1 bg-white/5 rounded-md border border-white/10 glass">
                     <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">TF:</span>
                     <Select onValueChange={() => {
-                        console.log("hello")
+                        handleChangeTimeFrame(chart, [
+                            { timestamp: 1518278400000, open: 8312.4, high: 8450.6, low: 7900.2, close: 8125.7, volume: 198321 },
+                            { timestamp: 1518364800000, open: 8126.1, high: 8604.9, low: 8050.4, close: 8540.3, volume: 176554 },
+                            { timestamp: 1518451200000, open: 8542.8, high: 8801.2, low: 8205.5, close: 8688.9, volume: 132440 },
+                            { timestamp: 1518537600000, open: 8689.1, high: 9105.7, low: 8600.3, close: 9022.4, volume: 215903 },
+                            { timestamp: 1518624000000, open: 9025.6, high: 9400.8, low: 8950.2, close: 9333.7, volume: 248771 }
+                        ]);
                     }} defaultValue="1h" >
                         <SelectTrigger className="h-7 border-none bg-transparent hover:bg-white/5 transition-colors text-xs font-semibold min-w-[60px] shadow-none ring-0 focus:ring-0">
                             <SelectValue placeholder="Timeframe" />
