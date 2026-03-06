@@ -38,9 +38,9 @@ export default function BacktestingChart() {
                     noChangeWickColor: '#888888'
                 },
             },
-            xAxis: {
+            grid: {
                 show: false,
-            }
+            },
         });
 
         return () => {
