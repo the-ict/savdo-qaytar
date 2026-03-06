@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import {
     ChevronLeft,
@@ -5,9 +7,10 @@ import {
     Play,
     Pause,
     Settings2,
-    Star
 } from 'lucide-react';
-import { timeFrameOptions } from '../lib/data';
+import {
+    timeFrameOptions
+} from '../lib/data';
 import {
     Select,
     SelectContent,
@@ -15,17 +18,6 @@ import {
     SelectTrigger,
     SelectValue
 } from "@/shared/ui/select";
-
-interface BacktestingHeaderProps {
-    onPrev: () => void;
-    onNext: () => void;
-    onPlay: () => void;
-    onPause: () => void;
-    onStop: () => void;
-    isPlaying: boolean;
-    speed: number;
-    onSpeedChange: (speed: number) => void;
-};
 
 export const BacktestingHeader = ({ handleChangeTimeFrame, chart }: { handleChangeTimeFrame: (chart: any, newData: any) => void, chart: any }) => {
     return (
@@ -68,7 +60,9 @@ export const BacktestingHeader = ({ handleChangeTimeFrame, chart }: { handleChan
 
                 <div className="flex items-center gap-2 px-2 py-1 bg-white/5 rounded-md border border-white/10 glass">
                     <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">TF:</span>
-                    <Select defaultValue="1h">
+                    <Select onValueChange={() => {
+                        console.log("hello")
+                    }} defaultValue="1h" >
                         <SelectTrigger className="h-7 border-none bg-transparent hover:bg-white/5 transition-colors text-xs font-semibold min-w-[60px] shadow-none ring-0 focus:ring-0">
                             <SelectValue placeholder="Timeframe" />
                         </SelectTrigger>
