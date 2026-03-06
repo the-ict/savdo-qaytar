@@ -1,5 +1,6 @@
 'use client';
 
+import BacktestingChart from './BacktestingChart';
 import {
   BacktestingHeader
 } from './BacktestingHeader';
@@ -14,6 +15,7 @@ import {
   Trash2,
   Maximize2
 } from 'lucide-react';
+
 
 const DRAWING_TOOLS = [
   { id: 'cursor', icon: <MousePointer2 className="w-4 h-4" />, name: 'Cursor' },
@@ -33,7 +35,7 @@ export default function BacktestingApp() {
       <div className="flex flex-1 overflow-hidden gap-2 py-2">
         <div className="w-12 border-right border-gray-800 flex flex-col items-center py-4 gap-4 bg-[#131722]">
           {DRAWING_TOOLS.map((tool) => (
-            <h1>{tool.icon}</h1>
+            <h1 key={tool.id}>{tool.icon}</h1>
           ))}
           <div className="h-px w-8 bg-gray-800 my-2" />
           <button onClick={() => { }} title="Clear All">
@@ -46,9 +48,7 @@ export default function BacktestingApp() {
           </div>
         </div>
 
-        <div>
-          this is where chart will shown up
-        </div>
+        <BacktestingChart />
       </div>
     </div >
   );
