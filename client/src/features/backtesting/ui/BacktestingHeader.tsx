@@ -4,12 +4,8 @@ import {
     ChevronRight,
     Play,
     Pause,
-    Square,
     Settings2
 } from 'lucide-react';
-import {
-    ToolbarButton
-} from './ToolbarButton';
 
 interface BacktestingHeaderProps {
     onPrev: () => void;
@@ -22,16 +18,7 @@ interface BacktestingHeaderProps {
     onSpeedChange: (speed: number) => void;
 };
 
-export const BacktestingHeader: React.FC<BacktestingHeaderProps> = ({
-    onPrev,
-    onNext,
-    onPlay,
-    onPause,
-    onStop,
-    isPlaying,
-    speed,
-    onSpeedChange,
-}) => {
+export const BacktestingHeader = () => {
     return (
         <div className="flex items-center justify-between px-4 py-2 bg-[#131722] border-b border-gray-800 text-white">
             <div className="flex items-center gap-1">
@@ -39,24 +26,24 @@ export const BacktestingHeader: React.FC<BacktestingHeaderProps> = ({
 
                 <div className="h-6 w-px bg-gray-800 mx-2" />
 
-                <ToolbarButton onClick={onPrev} title="Previous Candle (Left Arrow)" className='cursor-pointer'>
+                <button onClick={() => { }} title="Previous Candle (Left Arrow)" className='cursor-pointer'>
                     <ChevronLeft className="w-4 h-4" />
-                </ToolbarButton>
+                </button>
 
-                <ToolbarButton onClick={onNext} title="Next Candle (Right Arrow)" className='cursor-pointer'>
+                <button onClick={() => { }} title="Next Candle (Right Arrow)" className='cursor-pointer'>
                     <ChevronRight className="w-4 h-4" />
-                </ToolbarButton>
+                </button>
 
                 <div className="h-6 w-px bg-gray-800 mx-2" />
 
-                {isPlaying ? (
-                    <ToolbarButton onClick={onPause} active title="Pause" className='cursor-pointer'>
+                {false ? (
+                    <button onClick={() => { }} title="Pause" className='cursor-pointer'>
                         <Pause className="w-4 h-4 fill-current" />
-                    </ToolbarButton>
+                    </button>
                 ) : (
-                    <ToolbarButton onClick={onPlay} title="Play (Auto Skip)" className='cursor-pointer'>
+                    <button onClick={() => { }} title="Play (Auto Skip)" className='cursor-pointer'>
                         <Play className="w-4 h-4 fill-current" />
-                    </ToolbarButton>
+                    </button>
                 )}
 
                 <div className="h-6 w-px bg-gray-800 mx-2" />
@@ -64,8 +51,8 @@ export const BacktestingHeader: React.FC<BacktestingHeaderProps> = ({
                 <div className="flex items-center gap-2 px-2 py-1 bg-white/5 rounded-md">
                     <span className="text-xs text-gray-500">Speed:</span>
                     <select
-                        value={speed}
-                        onChange={(e) => onSpeedChange(Number(e.target.value))}
+                        value={100}
+                        onChange={(e) => { }}
                         className="bg-transparent text-xs outline-none cursor-pointer hover:text-blue-400 transition-colors"
                     >
                         <option value={2000} className="bg-[#131722]">0.5s</option>
@@ -78,9 +65,9 @@ export const BacktestingHeader: React.FC<BacktestingHeaderProps> = ({
             </div>
 
             <div className="flex items-center gap-2">
-                <ToolbarButton>
+                <button>
                     <Settings2 className="w-4 h-4" />
-                </ToolbarButton>
+                </button>
             </div>
         </div>
     );
