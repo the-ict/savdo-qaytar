@@ -28,9 +28,13 @@ const DRAWING_TOOLS = [
 ];
 
 export default function BacktestingApp() {
+  const handleChangeTimeFrame = (chart: any, newData: { timestamp: number, open: number, low: number, high: number, close: number, volume: number }[]) => {
+    chart.applyNewData([])
+  };
+
   return (
     <div className="flex flex-col h-screen bg-[#131722] overflow-hidden">
-      <BacktestingHeader />
+      <BacktestingHeader handleChangeTimeFrame={handleChangeTimeFrame} />
 
       <div className="flex flex-1 overflow-hidden gap-2 py-2">
         <div className="w-12 border-right border-gray-800 flex flex-col items-center py-4 gap-4 bg-[#131722]">

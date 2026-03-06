@@ -18,7 +18,7 @@ interface BacktestingHeaderProps {
     onSpeedChange: (speed: number) => void;
 };
 
-export const BacktestingHeader = () => {
+export const BacktestingHeader = ({ handleChangeTimeFrame }: { handleChangeTimeFrame: (chart: any, newData: any) => void }) => {
     return (
         <div className="flex items-center justify-between px-4 py-2 bg-[#131722] border-b border-gray-800 text-white">
             <div className="flex items-center gap-1">
@@ -52,7 +52,9 @@ export const BacktestingHeader = () => {
                     <span className="text-xs text-gray-500">Speed:</span>
                     <select
                         value={100}
-                        onChange={(e) => { }}
+                        onChange={(e) => {
+                            handleChangeTimeFrame()
+                        }}
                         className="bg-transparent text-xs outline-none cursor-pointer hover:text-blue-400 transition-colors"
                     >
                         <option value={2000} className="bg-[#131722]">0.5s</option>

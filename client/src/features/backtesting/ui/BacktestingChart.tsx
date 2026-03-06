@@ -8,11 +8,11 @@ import {
     init,
     dispose,
     CandleType,
-    LineType,
 } from "klinecharts";
 
-
 export default function BacktestingChart() {
+
+
     useEffect(() => {
         const chart = init('chart');
 
@@ -23,36 +23,6 @@ export default function BacktestingChart() {
             { timestamp: 1518105600000, open: 8244, high: 8494, low: 7760, close: 8364, volume: 29834 },
             { timestamp: 1518192000000, open: 8363.6, high: 9036.7, low: 8269.8, close: 8311.9, volume: 28203 }
         ]);
-
-        // Example: Drawing a horizontal straight line at a specific price
-        chart?.createOverlay({
-            name: 'horizontalStraightLine',
-            points: [
-                { value: 8000 }
-            ],
-            styles: {
-                line: {
-                    color: '#FF9500',
-                    size: 2,
-                    style: LineType.Dashed
-                }
-            }
-        });
-
-        // Example: Drawing a segment between two points
-        chart?.createOverlay({
-            name: 'segment',
-            points: [
-                { timestamp: 1517846400000, value: 7424.6 },
-                { timestamp: 1518192000000, value: 8311.9 }
-            ],
-            styles: {
-                line: {
-                    color: '#2196F3',
-                    size: 2
-                }
-            }
-        });
 
         chart?.setStyles({
             candle: {
@@ -86,9 +56,9 @@ export default function BacktestingChart() {
         return () => {
             dispose('chart');
         };
-    }, [])
+    }, []);
 
     return (
         <div id='chart' className='w-full h-full'></div>
-    )
+    );
 };
