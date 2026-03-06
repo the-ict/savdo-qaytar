@@ -2,13 +2,14 @@
 
 import React from 'react'
 import {
-    useEffect
+    useEffect,
 } from 'react';
 import {
     init,
     dispose,
-    CandleType
+    CandleType,
 } from "klinecharts";
+
 
 export default function BacktestingChart() {
     useEffect(() => {
@@ -49,4 +50,4 @@ export default function BacktestingChart() {
     return (
         <div id='chart' className='w-full h-full'></div>
     )
-}
+};
